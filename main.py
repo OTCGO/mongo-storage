@@ -40,12 +40,15 @@ def create_index():
     m.connection()['assert'].create_index(
         [('assetId', DESCENDING)], unique=True)
 
+    m.connection()['state'].create_index([('index', DESCENDING)])    
+
 
 def del_all():
     m.connection()['block'].delete_many({})
     m.connection()['transaction'].delete_many({})
     m.connection()['address'].delete_many({})
     m.connection()['assert'].delete_many({})
+    m.connection()['state'].delete_many({})
 
 
 def save_block(start, length):
@@ -65,16 +68,17 @@ def save_block(start, length):
             print('block', block)
             m.connection()['block'].insert_one(block)
 
-            for tx in block['tx']:
-                # 判断 m_transaction 是否已经存在
-                m_transaction = m.connection()['transaction'].find_one({
-                    'txid': tx['txid']
-                })
-                if m_transaction is None:
-                    save_transaction(tx, block['index'])
+        m_block =  m_block or b.get_block(index)
+        for tx in block['tx']:
+            # 判断 m_transaction 是否已经存在
+            m_transaction = m.connection()['transaction'].find_one({
+                'txid': tx['txid']
+            })
+            if m_transaction is None:
+                save_transaction(tx, block['index'])
 
-                # 保存address
-                save_address(tx, block['index'])
+            # 保存address
+            save_address(tx, block['index'])
 
         index = index + 1
 
@@ -217,17 +221,24 @@ def main():
         create_index()
         r = b.get_block_count()
         skip = 1000
-        # save_block(944447,0)
 
         pool = Pool(processes=cpu_count())
         print('count', r - 1)
-        for x in range(0, r - 1, skip):
+        m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : 0}
+
+
+        print('m_state',m_state)
+        for x in range((m_state['index'] + 1 or 0) , r - 1, skip):
             print('x', x)
             pool.apply_async(save_block, args=(x, skip - 1))
 
         pool.close()
         pool.join()
 
+        m_block = m.connection()['block'].find({},{'index':1}).sort('index',DESCENDING).limit(1)[0] or { 'index' : 0}
+        m.connection()['state'].insert_one({
+            'index': m_block['index']
+        })
         end = time.time()
         print('Took %.3f seconds.' % (end - start))
     except Exception as e:
@@ -240,7 +251,7 @@ def check():
     try:
         while True:
             r = b.get_block_count() 
-            m_block = m.connection()['block'].find({},{'index':1}).sort('index',DESCENDING).limit(1)[0] 
+            m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : 0}
             print('m_block',m_block)
             if r - 1 - m_block['index'] < 1001:
                 print('start check')
