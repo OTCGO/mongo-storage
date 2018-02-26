@@ -243,7 +243,7 @@ def main():
         print('Took %.3f seconds.' % (end - start))
     except Exception as e:
         print('err', e)
-        time.sleep(3)
+        time.sleep(30)
         main()
 
 
@@ -259,7 +259,7 @@ def check():
             time.sleep(30)
     except Exception as e:
         print('err', e)
-        time.sleep(3)
+        time.sleep(30)
         check()
 
 
