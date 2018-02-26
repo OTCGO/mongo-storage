@@ -5,10 +5,10 @@
 from pymongo import MongoClient
 
 class Mongo:
-    def __init__(self):
+    def __init__(self,url,db):
         print('__init__')
-        self.url = 'mongodb://127.0.0.1:27017/'
-        self.db = 'testnet-node'
+        self.url = url
+        self.db = db
     def connection(self):
         # print('connet')
         return MongoClient(self.url)[self.db] 

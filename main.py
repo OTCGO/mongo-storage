@@ -10,14 +10,20 @@ from multiprocessing import Pool, cpu_count
 from binascii import unhexlify
 from utils.tools import Tool
 from binascii import unhexlify
+import argparse
 
-b = RpcClient()
-m = Mongo()
-# w = Wallet()
+parser = argparse.ArgumentParser()
+parser.add_argument("-m", "--mongodb",help="verify database name, default antshares", default='mongodb://127.0.0.1:27017/')
+parser.add_argument("-d", "--db",help="verify collections name, default antshares", default='testnet-node')
+parser.add_argument("-r", "--rpc",help="verify collections name, default antshares", default='http://127.0.0.1:10332')
+
+args = parser.parse_args()
+
+print('args',args)
+b = RpcClient(args.rpc)
+m = Mongo(args.mongodb,args.db)
 
 # create index
-
-
 def create_index():
     m.connection()['block'].create_index([('index', DESCENDING)], unique=True)
 
@@ -236,7 +242,7 @@ def check():
             r = b.get_block_count() 
             m_block = m.connection()['block'].find({},{'index':1}).sort('index',DESCENDING).limit(1)[0] 
             print('m_block',m_block)
-            if r - 1 - m_block['index'] < 20:
+            if r - 1 - m_block['index'] < 1001:
                 print('start check')
                 save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
             time.sleep(30)
@@ -249,3 +255,4 @@ def check():
 if __name__ == "__main__":
     main()
     check()
+

@@ -3,10 +3,10 @@
 # Licensed under the MIT License.
 
 import requests
-node_url = 'http://future.otcgo.cn:20332'
+
 
 class RpcClient(object):
-    def __init__(self):
+    def __init__(self,node_url):
         self.url = node_url
         print('__init__')
 
