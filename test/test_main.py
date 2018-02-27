@@ -7,11 +7,11 @@ import os,sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
 sys.path.insert(0,parentdir) 
 import unittest
-from main import save_transaction,handle_nep5,del_all
+from main import save_transaction,handle_nep5,del_all,save_block
 
 del_all()
 class TestMain(unittest.TestCase):
-    
+    '''
     def test_save_transaction(self): 
         tx = {
                 "txid": "0x036c689ab6b72313460fdcc5faf145697de07d0d39578da9d22446f56a41cce5",
@@ -43,14 +43,21 @@ class TestMain(unittest.TestCase):
                 ]
             }
         # save_transaction(tx,10000)
-
-
+    '''
+    '''
     def test_handle_nep5(self):
         txid = '0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f'
+        # txid = '0x9e34e249c7ec86806aa9b194623da8d0dee9174441f0928bd3b10bf979ff81b0'
         r = handle_nep5(txid,1000)
+        print('r',r)
         self.assertIsNotNone(r)
- 
+    '''
    
+    def test_save_block(self): 
+       save_block(944447,0)
+    #    print('r',r)
+    #    self.assertIsNotNone(r)
+
 if __name__ == '__main__':
     try:
         unittest.main()

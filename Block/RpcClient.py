@@ -18,6 +18,9 @@ class RpcClient(object):
             "params": [],
             "id": 1
         })
+        while r.json()['result'] is None:
+            self.get_block_count()       
+
         return r.json()['result']
     def get_block(self,index):
         r = requests.post(self.url, json={
@@ -26,7 +29,10 @@ class RpcClient(object):
             "params": [index,1],
             "id": 1
         })
-        return r.json()['result']
+        while r.json()['result'] is None:
+            self.get_block(index)
+
+        return r.json()['result']  
 
     # 根据指定的 NEP-5 交易 ID 获取合约日志。
     def get_application_log(self,txid):
@@ -36,6 +42,9 @@ class RpcClient(object):
             "params": [txid],
             "id": 1
         })
+        while r.json()['result'] is None:
+            self.get_application_log(txid)
+            
         return r.json()['result']
 
     # 根据指定的散列值，返回对应的交易信息
@@ -46,6 +55,9 @@ class RpcClient(object):
             "params": [txid,1],
             "id": 1
         })
+        while r.json()['result'] is None:
+            self.get_raw_transaction(txid)
+
         return r.json()['result']
 
     # 根据指定的资产编号，查询资产信息。
@@ -56,6 +68,9 @@ class RpcClient(object):
             "params": [asset_id],
             "id": 1
         })
+        while r.json()['result'] is None:
+            self.get_asset_state(asset_id)
+
         return r.json()['result']
 
 
