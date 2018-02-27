@@ -337,9 +337,9 @@ def verify_blocks():
 
 if __name__ == "__main__":
     #del_all()
-    # main()
-    # check()
-    # verify_blocks()
+    main()
+    check()
+    verify_blocks()
 
 
 
