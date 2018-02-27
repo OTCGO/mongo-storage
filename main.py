@@ -344,7 +344,7 @@ def verify_blocks(start):
 
 
 if __name__ == "__main__":
-    del_all()
+    # del_all()
     create_index()
     main()
     check()
