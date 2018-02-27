@@ -258,7 +258,7 @@ def main():
 def check():
     try:
         while True:
-            r = b.get_block_count()   1
+            r = b.get_block_count()
 
             m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
             print('m_block',m_block)
@@ -269,7 +269,7 @@ def check():
 
                 if r - 1 == m_block['index']:
                     return
-                    
+
                 print('start check')
                 save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
 
