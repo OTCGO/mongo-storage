@@ -305,41 +305,53 @@ def check():
         check()
 
 
-def verify_blocks():
+def verify_blocks(start):
     try:
         # m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : 0}
-        start = 0
+        # start = 0
 
-        end = b.get_block_count()
+        # end = b.get_block_count()
 
+       
+        verify_count = 1000
+        end = start + verify_count
+
+        if end > b.get_block_count():
+            return
 
         print('start',start)
         print('end',end)
-        
         pool = Pool(processes=cpu_count())
 
-        for i in range(start,end):
-            m_block = m.connection()['block'].find_one({'index': i},{'index':1})
-            if m_block is None:
-                print('save_block',i)
-                pool.apply_async(save_block, args=(i, 0))    
-        
-       
+        m_block_count = m.connection()['block'].find({'index': { '$gte':start,'$lt': end }},{'index':1}).count()
+
+        if m_block_count != verify_count:
+            for i in range(start,end):
+                print('i',i)
+                m_block = m.connection()['block'].find_one({'index': i},{'index':1})
+                if m_block is None:
+                    print('save_block',i)
+                    pool.apply_async(save_block, args=(i, 0)) 
+
+            verify_blocks(start)
+        else:
+            time.sleep(1)
+            verify_blocks(end)
+
 
         pool.close()
         pool.join()
 
+        
+
     except Exception as e:
         print('err', e)
         time.sleep(30)
-        verify_blocks()
+        verify_blocks(start)
 
 
 if __name__ == "__main__":
     #del_all()
-    main()
+    # main()
     check()
-    verify_blocks()
-
-
-
+    verify_blocks(0)
