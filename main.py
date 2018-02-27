@@ -56,6 +56,7 @@ def del_all():
 def save_block(start, length):
     print('start', start)
     print('length', length)
+
     try:
         index = start
         while index <= start + length:
@@ -261,23 +262,6 @@ def main():
 def check():
     try:
         while True:
-
-
-            # //  checkout 
-            m_state_list = m.connection()['state'].find({'error': True},{'index':1},sort = [('index',DESCENDING)])
-
-            for item in m_state_list:
-                print('item',item['index'])
-                save_block(item['index'], 0)
-
-                m.connection()['state'].update_one({
-                    'index': item['index']
-                    },{
-                    '$set': {
-                        'error':False
-                    }
-                })
-
             # block
             r = b.get_block_count()
 
@@ -293,9 +277,6 @@ def check():
 
                 print('start check')
                 save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
-
-
-                 
 
 
             time.sleep(30)
@@ -333,9 +314,10 @@ def verify_blocks(start):
                     print('save_block',i)
                     pool.apply_async(save_block, args=(i, 0)) 
 
+            time.sleep(5)
             verify_blocks(start)
         else:
-            time.sleep(1)
+            time.sleep(5)
             verify_blocks(end)
 
 
@@ -353,5 +335,5 @@ def verify_blocks(start):
 if __name__ == "__main__":
     #del_all()
     # main()
-    check()
+    # check()
     verify_blocks(0)

@@ -11,7 +11,7 @@ class Mongo:
         self.db = db
     def connection(self):
         # print('connet')
-        return MongoClient(self.url)[self.db] 
+        return MongoClient(self.url,maxPoolSize=1000)[self.db] 
 
     def find(self,collection):
         print('find')
