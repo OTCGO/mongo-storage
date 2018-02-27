@@ -261,20 +261,6 @@ def main():
 def check():
     try:
         while True:
-            r = b.get_block_count()
-
-            m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
-            print('m_block',m_block)
-
-
-
-            if r - 1 - m_block['index'] < 1001:
-
-                if r - 1 == m_block['index']:
-                    return
-
-                print('start check')
-                save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
 
 
             # //  checkout 
@@ -291,6 +277,24 @@ def check():
                         'error':False
                     }
                 })
+
+            # block
+            r = b.get_block_count()
+
+            m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
+            print('m_block',m_block)
+
+
+
+            if r - 1 - m_block['index'] < 1001:
+
+                if r - 1 == m_block['index']:
+                    return
+
+                print('start check')
+                save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
+
+
                  
 
 
@@ -333,9 +337,9 @@ def verify_blocks():
 
 if __name__ == "__main__":
     #del_all()
-    main()
-    check()
-    verify_blocks()
+    # main()
+    # check()
+    # verify_blocks()
 
 
 
