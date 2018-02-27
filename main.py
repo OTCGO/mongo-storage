@@ -307,8 +307,8 @@ def check():
 
 def verify_blocks():
     try:
-        m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : 0}
-        start = m_state['index']
+        # m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : 0}
+        start = 0
 
         end = b.get_block_count()
 
