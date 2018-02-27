@@ -5,6 +5,7 @@
 from pymongo import MongoClient, DESCENDING, ASCENDING
 from Block.RpcClient import RpcClient
 from Storage.Mongo import Mongo
+from bson.objectid import ObjectId
 import time
 from multiprocessing import Pool, cpu_count
 from binascii import unhexlify
@@ -42,7 +43,7 @@ def create_index():
 
     m.connection()['state'].create_index([('index', DESCENDING)]) 
     m.connection()['state'].delete_many({})
-    m.connection()['state'].insert_one({'index': 0})    
+    m.connection()['state'].insert_one({'_id':ObjectId('5a95047efc2a4961941484e6'),'height': 0})    
 
 
 def del_all():
@@ -73,20 +74,20 @@ def save_block(start, length):
                 m.connection()['block'].insert_one(block)
 
             # m_block =  m_block or b.get_block(index)
-            for tx in block['tx']:
+            for tx in m_block['tx']:
                 # 判断 m_transaction 是否已经存在
                 m_transaction = m.connection()['transaction'].find_one({
                     'txid': tx['txid']
                 })
                 if m_transaction is None:
-                    save_transaction(tx, block['index'])
+                    save_transaction(tx, m_block['index'])
 
                 # 保存address
-                save_address(tx, block['index'])
+                save_address(tx, m_block['index'])
 
             index = index + 1
     except Exception as e:
-        pass
+        save_block(start, length)
         # m.connection()['state'].insert_one({
         #     'index': index,
         #     'error': True    
@@ -230,7 +231,6 @@ def main():
     try:
         start = time.time()
 
-        create_index()
         r = b.get_block_count()
         skip = 1000
 
@@ -290,8 +290,7 @@ def check():
 
 def verify_blocks(start):
     try:
-        # m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : 0}
-        # start = 0
+
 
         # end = b.get_block_count()
 
@@ -316,25 +315,37 @@ def verify_blocks(start):
                     print('save_block',i)
                     pool.apply_async(save_block, args=(i, 0)) 
 
+            pool.close()
+            
+
             time.sleep(5)
+
             verify_blocks(start)
         else:
+            
+            m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
+                '$set':{
+                    'height': end
+                }
+            })
+
             verify_blocks(end)
 
-
-        pool.close()
+       
         pool.join()
-
         
 
     except Exception as e:
+        m_state = m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})
+
         print('err', e)
         time.sleep(30)
-        verify_blocks(start)
+        verify_blocks(m_state['height'])
 
 
 if __name__ == "__main__":
-    #del_all()
-    # main()
-    # check()
-    verify_blocks(0)
+    del_all()
+    create_index()
+    main()
+    check()
+    verify_blocks(m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})['height'])

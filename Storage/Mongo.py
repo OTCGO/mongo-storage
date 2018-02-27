@@ -9,10 +9,12 @@ class Mongo:
         print('__init__')
         self.url = url
         self.db = db
+        self.connect = MongoClient(self.url,maxPoolSize=1000)[self.db] 
     def connection(self):
-        # print('connet')
-        return MongoClient(self.url,maxPoolSize=1000)[self.db] 
-
+        if self.connect is None:
+            return MongoClient(self.url,maxPoolSize=1000)[self.db] 
+        return self.connect
+        
     def find(self,collection):
         print('find')
         self.client.collection.find_one()
