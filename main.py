@@ -319,7 +319,6 @@ def verify_blocks(start):
             time.sleep(5)
             verify_blocks(start)
         else:
-            time.sleep(5)
             verify_blocks(end)
 
 
