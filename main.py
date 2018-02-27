@@ -40,7 +40,9 @@ def create_index():
     m.connection()['assert'].create_index(
         [('assetId', DESCENDING)], unique=True)
 
-    m.connection()['state'].create_index([('index', DESCENDING)])    
+    m.connection()['state'].create_index([('index', DESCENDING)]) 
+    m.connection()['state'].delete_many({})
+    m.connection()['state'].insert_one({'index': 0})    
 
 
 def del_all():
@@ -83,9 +85,10 @@ def save_block(start, length):
             index = index + 1
     except Exception as e:
         m.connection()['state'].insert_one({
-            'index': index
+            'index': index,
+            'error': True    
         })
-        pass
+        
 
 
 
@@ -94,7 +97,7 @@ def save_transaction(tx, blockIndex):
 
     # InvocationTransaction 需要单独处理
     if tx['type'] == 'InvocationTransaction':
-        tx['nep5'] = handle_nep5(tx['txid'], blockIndex)
+        tx['nep5'] = handle_nep5(tx['txid'], blockIndex) or []
         print('nep5', tx['nep5'])
 
     for vin in tx['vin']:
@@ -273,6 +276,24 @@ def check():
                 print('start check')
                 save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
 
+
+            # //  checkout 
+            m_state_list = m.connection()['state'].find({'error': True},{'index':1},sort = [('index',DESCENDING)])
+
+            for item in m_state_list:
+                print('item',item['index'])
+                save_block(item['index'], 0)
+
+                m.connection()['state'].update_one({
+                    'index': item['index']
+                    },{
+                    '$set': {
+                        'error':False
+                    }
+                })
+                 
+
+
             time.sleep(30)
     except Exception as e:
         print('err', e)
@@ -299,6 +320,8 @@ def verify_blocks():
                 print('save_block',i)
                 pool.apply_async(save_block, args=(i, 0))    
         
+       
+
         pool.close()
         pool.join()
 
@@ -309,11 +332,10 @@ def verify_blocks():
 
 
 if __name__ == "__main__":
-    # del_all()
+    #del_all()
     main()
     check()
     verify_blocks()
-
 
 
 
