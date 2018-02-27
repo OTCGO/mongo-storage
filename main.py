@@ -68,10 +68,11 @@ def save_block(start, length):
             print('m_block', m_block)
             if m_block is None:
                 block = b.get_block(index)
+                m_block = block
                 print('block', block)
                 m.connection()['block'].insert_one(block)
 
-            m_block =  m_block or b.get_block(index)
+            # m_block =  m_block or b.get_block(index)
             for tx in block['tx']:
                 # 判断 m_transaction 是否已经存在
                 m_transaction = m.connection()['transaction'].find_one({
@@ -85,10 +86,11 @@ def save_block(start, length):
 
             index = index + 1
     except Exception as e:
-        m.connection()['state'].insert_one({
-            'index': index,
-            'error': True    
-        })
+        pass
+        # m.connection()['state'].insert_one({
+        #     'index': index,
+        #     'error': True    
+        # })
         
 
 
