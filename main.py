@@ -233,11 +233,11 @@ def main():
 
         pool = Pool(processes=cpu_count())
         print('count', r - 1)
-        m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
+        # m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
 
 
-        print('m_state',m_state)
-        for x in range((m_state['index'] + 1 or 0) , r - 1, skip):
+        # print('m_state',m_state)
+        for x in range( 0 , r - 1, skip):
             print('x', x)
             pool.apply_async(save_block, args=(x, skip - 1))
 
