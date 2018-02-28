@@ -21,7 +21,11 @@ class RpcClient(object):
         if r.json()['result'] is None:
             self.get_block_count()       
 
+        # if r.json()['error'] is not None:
+        #     self.get_block_count() 
+
         return r.json()['result']
+
     def get_block(self,index):
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
@@ -31,6 +35,9 @@ class RpcClient(object):
         })
         if r.json()['result'] is None:
             self.get_block(index)
+
+        # if r.json()['error']:
+        #     self.get_block(index)
 
         return r.json()['result']  
 
@@ -46,6 +53,9 @@ class RpcClient(object):
         if r.json()['result'] is None:
             self.get_application_log(txid)
 
+        # if r.json()['error']:
+        #     return None
+
         return r.json()['result']
 
     # 根据指定的散列值，返回对应的交易信息
@@ -60,8 +70,8 @@ class RpcClient(object):
         if r.json()['result'] is None:
             self.get_raw_transaction(txid)
 
-        if r.json()['error']:
-            return None
+        # if r.json()['error']:
+        #     return None
 
         return r.json()['result']
 
@@ -75,6 +85,9 @@ class RpcClient(object):
         })
         if r.json()['result'] is None:
             self.get_asset_state(asset_id)
+
+        # if r.json()['error']:
+        #     self.get_asset_state(asset_id)
 
         return r.json()['result']
 

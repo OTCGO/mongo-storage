@@ -14,11 +14,5 @@ class Mongo:
         if self.connect is None:
             return MongoClient(self.url,maxPoolSize=1000)[self.db] 
         return self.connect
-        
-    def find(self,collection):
-        print('find')
-        self.client.collection.find_one()
 
-    def find_one(self):
-        print('find_one') 
     

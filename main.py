@@ -87,6 +87,7 @@ def save_block(start, length):
 
             index = index + 1
     except Exception as e:
+        time.sleep(1)
         save_block(start, length)
         # m.connection()['state'].insert_one({
         #     'index': index,
@@ -242,7 +243,8 @@ def main():
         # print('m_state',m_state)
         for x in range( 0 , r - 1, skip):
             print('x', x)
-            pool.apply_async(save_block, args=(x, skip - 1))
+            # pool.apply_async(save_block, args=(x, skip - 1)) # 非阻塞
+            pool.apply_async(save_block, args=(x, skip - 1)) # 阻塞
 
 
 
@@ -290,7 +292,7 @@ def check():
 
 def verify_blocks(start):
     try:
-
+        print('verify_blocks start',start)
 
         # end = b.get_block_count()
 
@@ -303,23 +305,25 @@ def verify_blocks(start):
 
         print('start',start)
         print('end',end)
-        pool = Pool(processes=cpu_count())
+        
 
         m_block_count = m.connection()['block'].find({'index': { '$gte':start,'$lt': end }},{'index':1}).count()
 
         if m_block_count != verify_count:
+            pool = Pool(processes=cpu_count())
+
             for i in range(start,end):
                 print('i',i)
                 m_block = m.connection()['block'].find_one({'index': i},{'index':1})
                 if m_block is None:
                     print('save_block',i)
                     pool.apply_async(save_block, args=(i, 0)) 
-
-            pool.close()
             
+            
+            pool.close()
+            pool.join()       
 
             time.sleep(5)
-
             verify_blocks(start)
         else:
             
@@ -329,10 +333,10 @@ def verify_blocks(start):
                 }
             })
 
+
             verify_blocks(end)
 
-       
-        pool.join()
+
         
 
     except Exception as e:
@@ -345,7 +349,7 @@ def verify_blocks(start):
 
 if __name__ == "__main__":
     # del_all()
-    create_index()
-    main()
-    check()
+    # create_index()
+    # main()
+    # check()
     verify_blocks(m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})['height'])
