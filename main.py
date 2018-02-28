@@ -154,13 +154,13 @@ def handle_nep5(txid, blockIndex):
     if r['notifications']:
         for item in r['notifications']:
             nep5_assert = m.connection()['assert'].find_one({
-                "contract": item['contract'],
+                "assetId": item['contract'],
             })
             print('nep5_assert', nep5_assert)
             # asserts
             if nep5_assert is None:
                 m.connection()['assert'].insert_one({
-                    "contract": item['contract'],
+                    "assetId": item['contract'],
                     'type': 'nep5'
                 })
 
@@ -181,7 +181,7 @@ def handle_nep5(txid, blockIndex):
 
                 nep5_arr.append({
                     # "txid": txid,
-                    "contract": item['contract'],
+                    "assetId": item['contract'],
                     "operation": 'mintTokens',
                     # 转出 为空
                     "from": '',
@@ -215,7 +215,7 @@ def handle_nep5(txid, blockIndex):
                     })
                 nep5_arr.append({
                     # "txid": txid,
-                    "contract": item['contract'],
+                    "assetId": item['contract'],
                     "operation": 'transfer',
                     # 转出
                     "from": address_from,
