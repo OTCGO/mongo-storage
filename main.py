@@ -326,13 +326,16 @@ def verify_blocks(start):
                 print('save_block',i)
                 result = save_block(i, 0)
                 if result:
-                    m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
-                        '$set':{
-                            'height': i
-                        }
-                    })
-                m_block = m.connection()['block'].find_one({'index': i},{'index':1})    
-                
+                    break
+                m_block = m.connection()['block'].find_one({'index': i},{'index':1})  
+                if m_block:
+                    break
+
+            m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
+                    '$set':{
+                        'height': i
+                    }
+            })    
 
         # m_block_count = m.connection()['block'].find({'index': { '$gte':start,'$lt': end }},{'index':1}).count()
 
