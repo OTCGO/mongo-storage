@@ -50,13 +50,13 @@ class RpcClient(object):
             "id": 1
         })
 
-        if r.json()['result'] is None:
-            self.get_application_log(txid)
+        # if r.json()['result'] is None:
+        #     self.get_application_log(txid)
 
         # if r.json()['error']:
         #     return None
 
-        return r.json()['result']
+        return r.json()['result'] or None
 
     # 根据指定的散列值，返回对应的交易信息
     def get_raw_transaction(self,txid):
