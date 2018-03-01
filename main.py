@@ -320,6 +320,7 @@ def verify_blocks(start):
         print('end',end)
 
         for i in range(start,end):
+            print('index',i)
             m_block = m.connection()['block'].find_one({'index': i},{'index':1})
             while m_block is None:
                 print('save_block',i)
