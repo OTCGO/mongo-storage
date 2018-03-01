@@ -14,8 +14,13 @@ from utils.tools import Tool
 from binascii import unhexlify
 # import argparse
 from dotenv import load_dotenv, find_dotenv
+import logzero
+from logzero import logger
+
 
 load_dotenv(find_dotenv(), override=True)
+logzero.logfile(os.getcwd() + "/log/async.log", maxBytes=1e6, backupCount=3)
+
 
 
 
@@ -97,6 +102,7 @@ def save_block(start, length):
 
             return True
     except Exception as e:
+        logger.exception(e)
         time.sleep(1)
         save_block(start, length)
         # m.connection()['state'].insert_one({
@@ -295,6 +301,7 @@ def check():
 
             time.sleep(30)
     except Exception as e:
+        logger.exception(e)
         print('err', e)
         time.sleep(30)
         check()
@@ -375,8 +382,8 @@ def verify_blocks(start):
         
 
     except Exception as e:
-        print('err', e)
-        time.sleep(30)
+        logger.exception(e)
+        time.sleep(5)
         m_state = m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})
         verify_blocks(m_state['height'])
 
