@@ -7,22 +7,30 @@ from Block.RpcClient import RpcClient
 from Storage.Mongo import Mongo
 from bson.objectid import ObjectId
 import time
+import os
 from multiprocessing import Pool, cpu_count
 from binascii import unhexlify
 from utils.tools import Tool
 from binascii import unhexlify
-import argparse
+# import argparse
+from dotenv import load_dotenv, find_dotenv
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-m", "--mongodb",help="verify database name, default antshares", default='mongodb://127.0.0.1:27017/')
-parser.add_argument("-d", "--db",help="verify collections name, default antshares", default='testnet-node')
-parser.add_argument("-r", "--rpc",help="verify collections name, default antshares", default='http://future.otcgo.cn:20332')
+load_dotenv(find_dotenv(), override=True)
 
-args = parser.parse_args()
 
-print('args',args)
-b = RpcClient(args.rpc)
-m = Mongo(args.mongodb,args.db)
+
+# parser = argparse.ArgumentParser()
+# parser.add_argument("-m", "--mongodb",help="verify database name, default antshares", default='mongodb://127.0.0.1:27017/')
+# parser.add_argument("-d", "--db",help="verify collections name, default antshares", default='testnet-node')
+# parser.add_argument("-r", "--rpc",help="verify collections name, default antshares", default='http://future.otcgo.cn:20332')
+
+# args = parser.parse_args()
+
+print('RPC', os.environ.get('RPC'))
+print('MONGODB', os.environ.get('MONGODB'))
+print('DB', os.environ.get('DB'))
+b = RpcClient(os.environ.get('RPC'))
+m = Mongo(os.environ.get('MONGODB'),os.environ.get('DB'))
 
 # create index
 def create_index():
@@ -86,6 +94,8 @@ def save_block(start, length):
                 save_address(tx, m_block['index'])
 
             index = index + 1
+
+            return True
     except Exception as e:
         time.sleep(1)
         save_block(start, length)
@@ -297,53 +307,73 @@ def verify_blocks(start):
         # end = b.get_block_count()
 
        
-        verify_count = 1000
-        end = start + verify_count
+        # verify_count = 1000
+        # end = start + verify_count
 
-        if end > b.get_block_count():
-            return
+        end = b.get_block_count()
+
+
+        # if end > b.get_block_count():
+        #     return
 
         print('start',start)
         print('end',end)
-        
 
-        m_block_count = m.connection()['block'].find({'index': { '$gte':start,'$lt': end }},{'index':1}).count()
+        for i in range(start,end):
+            m_block = m.connection()['block'].find_one({'index': i},{'index':1})
+            if m_block is None:
+                print('save_block',i)
+                result = save_block(i, 0)
+                if result:
+                    m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
+                        '$set':{
+                            'height': i
+                        }
+                    })
+                else:
+                    save_block(i, 0)    
 
-        if m_block_count != verify_count:
-            pool = Pool(processes=cpu_count())
+        # m_block_count = m.connection()['block'].find({'index': { '$gte':start,'$lt': end }},{'index':1}).count()
 
-            for i in range(start,end):
-                print('i',i)
-                m_block = m.connection()['block'].find_one({'index': i},{'index':1})
-                if m_block is None:
-                    print('save_block',i)
-                    pool.apply_async(save_block, args=(i, 0)) 
+        # if m_block_count != verify_count:
+        #     # pool = Pool(processes=cpu_count())
+
+        #     for i in range(start,end):
+        #         print('i',i)
+        #         m_block = m.connection()['block'].find_one({'index': i},{'index':1})
+        #         if m_block is None:
+        #             print('save_block',i)
+        #             save_block(i, 0)
+        #             m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
+        #                 '$set':{
+        #                     'height': i
+        #                 }
+        #             })
+        #             # pool.apply_async(save_block, args=(i, 0))
+
             
             
-            pool.close()
-            pool.join()       
+            # pool.close()
+            # pool.join()       
 
-            time.sleep(5)
-            verify_blocks(start)
-        else:
+            # time.sleep(5)
+            # verify_blocks(start)
+        # else:
+
+
             
-            m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
-                '$set':{
-                    'height': end
-                }
-            })
 
 
-            verify_blocks(end)
+
+            # verify_blocks(end)
 
 
         
 
     except Exception as e:
-        m_state = m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})
-
         print('err', e)
         time.sleep(30)
+        m_state = m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})
         verify_blocks(m_state['height'])
 
 
