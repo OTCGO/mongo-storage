@@ -9,7 +9,7 @@ sys.path.insert(0,parentdir)
 import unittest
 from main import save_transaction,handle_nep5,del_all,save_block
 
-del_all()
+# del_all()
 class TestMain(unittest.TestCase):
     '''
     def test_save_transaction(self): 
@@ -54,9 +54,11 @@ class TestMain(unittest.TestCase):
     '''
    
     def test_save_block(self): 
-       save_block(2003,0)
-    #    print('r',r)
-    #    self.assertIsNotNone(r)
+        # 1115000
+        # 944447
+       r = save_block(944447,0)
+       print('r',r)
+       self.assertIsNotNone(r)
 
 if __name__ == '__main__':
     try:

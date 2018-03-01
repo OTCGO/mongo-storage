@@ -3,6 +3,10 @@
 # Licensed under the MIT License.
 
 import requests
+from logzero import logger
+import os
+
+
 
 
 class RpcClient(object):
@@ -43,20 +47,27 @@ class RpcClient(object):
 
     # 根据指定的 NEP-5 交易 ID 获取合约日志。
     def get_application_log(self,txid):
-        r = requests.post(self.url, json={
-            "jsonrpc": "2.0",
-            "method": "getapplicationlog",
-            "params": [txid],
-            "id": 1
-        })
+        try:
+            r = requests.post(self.url, json={
+                "jsonrpc": "2.0",
+                "method": "getapplicationlog",
+                "params": [txid],
+                "id": 1
+            })
 
-        # if r.json()['result'] is None:
-        #     self.get_application_log(txid)
+            if r.json() is None:
+                return None
 
-        # if r.json()['error']:
-        #     return None
+            if 'result' in r.json():
+                return r.json()['result']
+             
+            return None
+        except Exception as e:
+            logger.error('error txid %s',txid)
+            logger.exception(e)
+            return None
 
-        return r.json()['result'] or None
+        
 
     # 根据指定的散列值，返回对应的交易信息
     def get_raw_transaction(self,txid):
