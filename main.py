@@ -337,6 +337,7 @@ def verify_blocks(start):
                 m_block = m.connection()['block'].find_one({'index': i},{'index':1})  
                 if m_block:
                     break
+                time.sleep(1)
 
             m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
                     '$set':{
