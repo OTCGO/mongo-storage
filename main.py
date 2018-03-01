@@ -321,7 +321,7 @@ def verify_blocks(start):
 
         for i in range(start,end):
             m_block = m.connection()['block'].find_one({'index': i},{'index':1})
-            if m_block is None:
+            while m_block is None:
                 print('save_block',i)
                 result = save_block(i, 0)
                 if result:
@@ -330,8 +330,8 @@ def verify_blocks(start):
                             'height': i
                         }
                     })
-                else:
-                    save_block(i, 0)    
+                m_block = m.connection()['block'].find_one({'index': i},{'index':1})    
+                
 
         # m_block_count = m.connection()['block'].find({'index': { '$gte':start,'$lt': end }},{'index':1}).count()
 
