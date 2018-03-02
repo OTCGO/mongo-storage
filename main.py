@@ -170,85 +170,93 @@ def save_state():
 
 def handle_nep5(txid, blockIndex):
     # 0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f
-    r = b.get_application_log(txid)
-    nep5_arr = []
-    if r is not None:
-        if 'notifications' in r:
-            for item in r['notifications']:
-                if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
-                    #print('handle_nep5')
-                    nep5_assert = m.connection()['assert'].find_one({
-                        "assetId": item['contract'],
-                    })
-                    #print('nep5_assert', nep5_assert)
-                    # asserts
-                    if nep5_assert is None:
-                        m.connection()['assert'].insert_one({
+    try:
+        r = b.get_application_log(txid)
+        nep5_arr = []
+        if r is not None:
+            if 'notifications' in r:
+                for item in r['notifications']:
+                    if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
+                        #print('handle_nep5')
+                        nep5_assert = m.connection()['assert'].find_one({
                             "assetId": item['contract'],
-                            'type': 'nep5'
                         })
-
-                    # mintTokens
-                    if item['state']['value'][1]['value'] == "":
-                        # 判断地址
-                        address_to = Tool.scripthash_to_address(
-                            unhexlify(item['state']['value'][2]['value']))
-                        nep5_address_to = m.connection()['address'].find_one({
-                            'address': address_to
-                        })
-
-                        if nep5_address_to is None:
-                            m.connection()['address'].insert_one({
-                                'address': address_to,
-                                'blockIndex': blockIndex
+                        #print('nep5_assert', nep5_assert)
+                        # asserts
+                        if nep5_assert is None:
+                            m.connection()['assert'].insert_one({
+                                "assetId": item['contract'],
+                                'type': 'nep5'
                             })
 
-                        nep5_arr.append({
-                            # "txid": txid,
-                            "assetId": item['contract'],
-                            "operation": 'mintTokens',
-                            # 转出 为空
-                            "from": '',
-                            # 输入
-                            "to": address_to,
-                            "value": Tool.hex_to_num_str(item['state']['value'][3]['value']),
-                        })
-                    else:
-                        # 判断地址from
-                        address_from = Tool.scripthash_to_address(
-                            unhexlify(item['state']['value'][1]['value']))
-                        nep5_address_from = m.connection()['address'].find_one({
-                            'address': address_from
-                        })
-                        if nep5_address_from is None:
-                            m.connection()['address'].insert_one({
-                                'address': address_from,
-                                'blockIndex': blockIndex
+                        # mintTokens
+                        if item['state']['value'][1]['value'] == "":
+                            # 判断地址
+                            address_to = Tool.scripthash_to_address(
+                                unhexlify(item['state']['value'][2]['value']))
+                            nep5_address_to = m.connection()['address'].find_one({
+                                'address': address_to
                             })
 
-                            # 判断地址to
-                        address_to = Tool.scripthash_to_address(
-                            unhexlify(item['state']['value'][2]['value']))
-                        nep5_address_to = m.connection()['address'].find_one({
-                            'address': address_to
-                        })
-                        if nep5_address_to is None:
-                            m.connection()['address'].insert_one({
-                                'address': address_to,
-                                'blockIndex': blockIndex
+                            if nep5_address_to is None:
+                                m.connection()['address'].insert_one({
+                                    'address': address_to,
+                                    'blockIndex': blockIndex
+                                })
+
+                            nep5_arr.append({
+                                # "txid": txid,
+                                "assetId": item['contract'],
+                                "operation": 'mintTokens',
+                                # 转出 为空
+                                "from": '',
+                                # 输入
+                                "to": address_to,
+                                "value": Tool.hex_to_num_str(item['state']['value'][3]['value']),
                             })
-                        nep5_arr.append({
-                            # "txid": txid,
-                            "assetId": item['contract'],
-                            "operation": 'transfer',
-                            # 转出
-                            "from": address_from,
-                            # 输入
-                            "to": address_to,
-                            "value": Tool.hex_to_num_str(item['state']['value'][3]['value']),
-                        })
-        
-    return nep5_arr
+                        else:
+                            # 判断地址from
+                            address_from = Tool.scripthash_to_address(
+                                unhexlify(item['state']['value'][1]['value']))
+                            nep5_address_from = m.connection()['address'].find_one({
+                                'address': address_from
+                            })
+                            if nep5_address_from is None:
+                                m.connection()['address'].insert_one({
+                                    'address': address_from,
+                                    'blockIndex': blockIndex
+                                })
+
+                                # 判断地址to
+                            address_to = Tool.scripthash_to_address(
+                                unhexlify(item['state']['value'][2]['value']))
+                            nep5_address_to = m.connection()['address'].find_one({
+                                'address': address_to
+                            })
+                            if nep5_address_to is None:
+                                m.connection()['address'].insert_one({
+                                    'address': address_to,
+                                    'blockIndex': blockIndex
+                                })
+                            nep5_arr.append({
+                                # "txid": txid,
+                                "assetId": item['contract'],
+                                "operation": 'transfer',
+                                # 转出
+                                "from": address_from,
+                                # 输入
+                                "to": address_to,
+                                "value": Tool.hex_to_num_str(item['state']['value'][3]['value']),
+                            })
+            
+        return nep5_arr
+
+    except Exception as e: 
+        logger.exception(e)
+        logger.error('handle_nep5 txid %s',txid) 
+        return []  
+
+
 
 def main():
 
