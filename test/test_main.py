@@ -44,15 +44,15 @@ class TestMain(unittest.TestCase):
             }
         # save_transaction(tx,10000)
     '''
-    '''
+    
     def test_handle_nep5(self):
-        txid = '0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f'
-        # txid = '0x9e34e249c7ec86806aa9b194623da8d0dee9174441f0928bd3b10bf979ff81b0'
+        # txid = '0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f'
+        txid = '0xa155ba865c7b86b1c84fe891f52ca41787eeefb55d471c5fad9eedc0d9dac0bb'
         r = handle_nep5(txid,1000)
         print('r',r)
         self.assertIsNotNone(r)
+    
     '''
-   
     def test_save_block(self): 
         # 1115000
         # 944447
@@ -60,7 +60,7 @@ class TestMain(unittest.TestCase):
        r = save_block(720300,0)
        print('r',r)
        self.assertIsNotNone(r)
-
+    '''
 if __name__ == '__main__':
     try:
         unittest.main()

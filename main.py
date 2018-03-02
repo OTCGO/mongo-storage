@@ -251,8 +251,7 @@ def handle_nep5(txid, blockIndex):
             
         return nep5_arr
 
-    except Exception as e: 
-        logger.exception(e)
+    except Exception:
         logger.error('handle_nep5 txid %s',txid) 
         return []  
 
