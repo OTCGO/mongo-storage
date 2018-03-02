@@ -87,9 +87,14 @@ class Tool:
 
     @staticmethod
     def hex_to_num_str(fixed8_str):
-        hex_str = big_or_little(fixed8_str)
-        d = D(int('0x' + hex_str, 16))
-        return sci_to_str(str(d/100000000))
+        try:
+            hex_str = big_or_little(fixed8_str)
+            d = D(int('0x' + hex_str, 16))
+            return sci_to_str(str(d/100000000))
+        except Exception as e:
+            print(e)
+            return 0
+
 
     @staticmethod
     def address_to_scripthash(address):
