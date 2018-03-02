@@ -105,8 +105,7 @@ def save_block(start, length):
                 save_address(tx, m_block['index'])
 
             index = index + 1
-
-            return True
+        return True
     except Exception as e:
         logger.error('save_block index %s',index)
         logger.exception(e)
@@ -176,7 +175,7 @@ def handle_nep5(txid, blockIndex):
     if r is not None:
         if 'notifications' in r:
             for item in r['notifications']:
-                if 'contract' in item and 'state' in item and len(item['state']['value']) == 4:
+                if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
                     #print('handle_nep5')
                     nep5_assert = m.connection()['assert'].find_one({
                         "assetId": item['contract'],
@@ -257,26 +256,34 @@ def main():
         start = time.time()
 
         r = b.get_block_count()
-        skip = 100
+        print('get_block_count',r)
+        skip = 1000
 
         pool = Pool(processes=work_count)
+
+        for x in range( 0 , r - 1, skip):
+            print('x', x)
+            pool.apply_async(save_block, args=(x, skip - 1)) # 非阻塞
         #print('count', r - 1)
         # m_state = m.connection()['state'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
 
 
         # #print('m_state',m_state)
-        for x in range( 0 , r - 1, skip):
-            #print('x', x)
-            pool.apply_async(save_block, args=(x, skip - 1)) # 非阻塞
+        # with Pool(processes=work_count) as pool:
+        #     [pool.apply_async(save_block, args = (x, skip - 1)) for x in range( 0 , r - 1, skip)]
+        #     # for x in range( 0 , r - 1, skip):
+            #     #print('x', x)
+            #     pool.apply_async(save_block, args=(x, skip - 1)) # 非阻塞
 
+
+
+        pool.close()
+        pool.join()
 
 
 
 
           
-
-        pool.close()
-        pool.join()
 
         end = time.time()
         logger.info('main %.3f seconds.' % (end - start))
