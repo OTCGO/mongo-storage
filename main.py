@@ -54,9 +54,13 @@ def create_index():
         [('vin.utxo.address', ASCENDING)])
     m.connection()['transaction'].create_index([('vou.address', ASCENDING)])
 
+    m.connection()['transaction'].create_index([('nep5.to', ASCENDING)])
+    m.connection()['transaction'].create_index([('nep5.from', ASCENDING)])
+    m.connection()['transaction'].create_index([('nep5.assetId', ASCENDING)])
+
     m.connection()['address'].create_index([('address', DESCENDING)], unique=True)
 
-    m.connection()['assert'].create_index(
+    m.connection()['asset'].create_index(
         [('assetId', DESCENDING)], unique=True)
 
     m.connection()['state'].create_index([('index', DESCENDING)]) 
@@ -68,7 +72,7 @@ def del_all():
     m.connection()['block'].delete_many({})
     m.connection()['transaction'].delete_many({})
     m.connection()['address'].delete_many({})
-    m.connection()['assert'].delete_many({})
+    m.connection()['asset'].delete_many({})
     m.connection()['state'].delete_many({})
 
 
@@ -150,7 +154,7 @@ def save_address(tx, blockIndex):
             })
 
         # 判断 m_assert 是否已经存在
-        m_assert = m.connection()['assert'].find_one({
+        m_assert = m.connection()['asset'].find_one({
             'assetId': vout['asset']
         })
         if m_assert is None:
@@ -161,7 +165,7 @@ def save_assert(assetId):
     r = b.get_asset_state(assetId)
     r['assetId'] = r['id']
     del r['id']
-    m.connection()['assert'].insert_one(r)
+    m.connection()['asset'].insert_one(r)
 
 
 def save_state():
@@ -178,13 +182,13 @@ def handle_nep5(txid, blockIndex):
                 for item in r['notifications']:
                     if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
                         #print('handle_nep5')
-                        nep5_assert = m.connection()['assert'].find_one({
+                        nep5_assert = m.connection()['asset'].find_one({
                             "assetId": item['contract'],
                         })
                         #print('nep5_assert', nep5_assert)
                         # asserts
                         if nep5_assert is None:
-                            m.connection()['assert'].insert_one({
+                            m.connection()['asset'].insert_one({
                                 "assetId": item['contract'],
                                 'type': 'nep5'
                             })
@@ -413,9 +417,9 @@ def verify_blocks(start):
 
 if __name__ == "__main__":
     try:
-        # del_all()
-        # create_index()
-        main()
+        del_all()
+        create_index()
+        # main()
         # check()
         # verify_blocks(m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})['height'])
     except Exception as e:
