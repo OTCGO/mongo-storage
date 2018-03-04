@@ -279,7 +279,7 @@ def async_current():
                     return
 
                 #print('start check')
-                save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
+                save_block(m_block['index'] + 1 , r - 2 - m_block['index'] )
 
 
             time.sleep(30)
