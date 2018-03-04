@@ -261,44 +261,39 @@ def handle_nep5(txid, blockIndex):
 
 
 
-def main():
 
+def async_current():
     try:
-        start = time.time()
+        while True:
+            # block
+            r = b.get_block_count()
 
-        r = b.get_block_count()
-        print('get_block_count',r)
-        skip = 1000
-
-        pool = Pool(processes=work_count)
-
-        for x in range( 0 , r - 1, skip):
-            print('x', x)
-            pool.apply_async(save_block, args=(x, skip - 1)) # 非阻塞
+            m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
+            print('r - 1 - m_block',r - 1 - m_block['index'])
 
 
 
-        pool.close()
-        pool.join()
+            if r - 1 - m_block['index'] < 1001:
+
+                if r - 1 == m_block['index']:
+                    return
+
+                #print('start check')
+                save_block(m_block['index'] + 1 , r - 1 - m_block['index'])
 
 
-
-
-          
-
-        end = time.time()
-        logger.info('main %.3f seconds.' % (end - start))
+            time.sleep(30)
     except Exception as e:
-        #print('err', e)
         logger.exception(e)
-        time.sleep(5)
-        main()
+        #print('err', e)
+        time.sleep(30)
+        async_current()
 
 
 
 
 if __name__ == "__main__":
     try:
-        main()
+        async_current()
     except Exception as e:
         logger.exception(e)

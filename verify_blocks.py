@@ -260,45 +260,42 @@ def handle_nep5(txid, blockIndex):
         return []  
 
 
-
-def main():
-
+def verify_blocks(start):
     try:
-        start = time.time()
 
-        r = b.get_block_count()
-        print('get_block_count',r)
-        skip = 1000
+        end = b.get_block_count()
+        for i in range(start,end):
+            #print('index',i)
+            m_block = m.connection()['block'].find_one({'index': i},{'index':1})
+            while m_block is None:
+                #print('save_block',i)
+                result = save_block(i, 0)
+                if result:
+                    break
+                m_block = m.connection()['block'].find_one({'index': i},{'index':1})  
+                if m_block:
+                    break
+                time.sleep(1)
 
-        pool = Pool(processes=work_count)
-
-        for x in range( 0 , r - 1, skip):
-            print('x', x)
-            pool.apply_async(save_block, args=(x, skip - 1)) # 非阻塞
-
-
-
-        pool.close()
-        pool.join()
+            m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
+                    '$set':{
+                        'height': i
+                    }
+            })    
 
 
 
+        
 
-          
-
-        end = time.time()
-        logger.info('main %.3f seconds.' % (end - start))
     except Exception as e:
-        #print('err', e)
         logger.exception(e)
         time.sleep(5)
-        main()
-
-
+        m_state = m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})
+        verify_blocks(m_state['height'])
 
 
 if __name__ == "__main__":
     try:
-        main()
+        verify_blocks(m.connection()['state'].find_one({'_id':ObjectId('5a95047efc2a4961941484e6')})['height'])
     except Exception as e:
         logger.exception(e)
