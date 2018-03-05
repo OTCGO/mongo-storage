@@ -16,7 +16,8 @@ from binascii import unhexlify
 from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger
-
+from apscheduler.schedulers.blocking import BlockingScheduler
+from datetime import datetime
 
 load_dotenv(find_dotenv(), override=True)
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
@@ -264,36 +265,27 @@ def handle_nep5(txid, blockIndex):
 
 def async_current():
     try:
-        while True:
-            # block
-            r = b.get_block_count()
+        r = b.get_block_count()
+        m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
+        print('r - 1 - m_block',r - 1 - m_block['index'])
+        save_block(m_block['index'] + 1 , r - 3 - m_block['index'] )  
 
-            m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
-            print('r - 1 - m_block',r - 1 - m_block['index'])
-
-
-
-            if r - 1 - m_block['index'] < 1001:
-
-                if r - 1 == m_block['index']:
-                    return
-
-                #print('start check')
-                save_block(m_block['index'] + 1 , r - 2 - m_block['index'] )
-
-
-            time.sleep(30)
     except Exception as e:
         logger.exception(e)
-        #print('err', e)
-        time.sleep(30)
-        async_current()
 
 
 
+def job():
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 if __name__ == "__main__":
     try:
-        async_current()
+        # async_current()
+        sched = BlockingScheduler()
+        sched.add_job(async_current, 'interval', seconds=30)
+        sched.start()
     except Exception as e:
         logger.exception(e)
+        time.sleep(30)
+        sched.start()
+        
