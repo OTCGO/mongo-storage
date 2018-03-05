@@ -267,16 +267,11 @@ def verify_blocks(start):
         for i in range(start,end):
             #print('index',i)
             m_block = m.connection()['block'].find_one({'index': i},{'index':1})
-            while m_block is None:
+            if m_block is None:
+                logger.error('verify_blocks txid %s',i)
                 #print('save_block',i)
-                result = save_block(i, 0)
-                if result:
-                    break
-                m_block = m.connection()['block'].find_one({'index': i},{'index':1})  
-                if m_block:
-                    break
-                time.sleep(1)
-
+                save_block(i, 0)
+            
             m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
                     '$set':{
                         'height': i
