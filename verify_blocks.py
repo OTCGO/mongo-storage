@@ -264,7 +264,7 @@ def verify_blocks(start):
     try:
         end = b.get_block_count()
         print('end',end)
-        m_block = m.connection()['block'].find({'index': {'$gte': 0, '$lte': end}},{'index':1}).sort('index',ASCENDING)
+        m_block = m.connection()['block'].find({'index': {'$gte': 0}},{'index':1}).sort('index',ASCENDING)
 
         print('m_block',m_block.count())
 
