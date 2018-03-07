@@ -273,7 +273,15 @@ def verify_blocks(start):
             print('item.index',item['index'])
             if point != item['index']:
                 logger.info('verify_blocks %s',point)
-                save_block(point, 0)
+                m_block = save_block(point, 0)
+                if m_block is None:
+                    save_block(point, 0)
+
+            m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
+                    '$set':{
+                        'height': point
+                    }
+            })  
 
             point = point + 1    
         
