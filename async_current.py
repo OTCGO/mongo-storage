@@ -53,7 +53,7 @@ def create_index():
     m.connection()['transaction'].create_index([('blockIndex', ASCENDING)])
     m.connection()['transaction'].create_index(
         [('vin.utxo.address', ASCENDING)])
-    m.connection()['transaction'].create_index([('vou.address', ASCENDING)])
+    m.connection()['transaction'].create_index([('vout.address', ASCENDING)])
 
     m.connection()['transaction'].create_index([('nep5.to', ASCENDING)])
     m.connection()['transaction'].create_index([('nep5.from', ASCENDING)])
