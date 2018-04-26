@@ -10,7 +10,6 @@ from multiprocessing import Pool, cpu_count
 from binascii import unhexlify
 from utils.tools import Tool
 from binascii import unhexlify
-# import argparse
 from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger

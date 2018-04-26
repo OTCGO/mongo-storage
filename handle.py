@@ -178,7 +178,7 @@ def handle_nep5(txid, blockIndex):
                     return 
                 for item in r['notifications']:
                     # not transfer
-                    if item['state']['value'][1]['value'] != "7472616e73666572"
+                    if item['state']['value'][1]['value'] != "7472616e73666572":
                         return
                     if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
                         # print('handle_nep5')
