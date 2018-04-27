@@ -167,18 +167,21 @@ def save_state():
 
 
 def handle_nep5(txid, blockIndex):
+    # print("handle_nep5",txid)
     # 0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f
     try:
         r = b.get_application_log(txid)
+        # print("r",r)
         nep5_arr = []
         if r is not None:
             if 'notifications' in r:
+                # print("r",r)
                 # vmstate"是虚拟机执行合约后的状态，如果包含"FAULT"的话，
                 if "FAULT" in r['vmstate']:
                     return 
                 for item in r['notifications']:
                     # not transfer
-                    if item['state']['value'][1]['value'] != "7472616e73666572":
+                    if item['state']['value'][0]['value'] != "7472616e73666572":
                         return
                     if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
                         # print('handle_nep5')
