@@ -193,6 +193,7 @@ def handle_nep5(txid, blockIndex):
                         if nep5_assert is None:
                             m.connection()['asset'].insert_one({
                                 "assetId": item['contract'],
+                                'blockIndex': blockIndex
                                 'type': 'nep5'
                             })
 
