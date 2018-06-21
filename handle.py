@@ -152,12 +152,13 @@ def save_address(tx, blockIndex):
             'assetId': vout['asset']
         })
         if m_assert is None:
-            save_assert(vout['asset'])
+            save_assert(vout['asset'],blockIndex)
 
 
-def save_assert(assetId):
+def save_assert(assetId,blockIndex):
     r = b.get_asset_state(assetId)
     r['assetId'] = r['id']
+    r['blockIndex'] = blockIndex
     del r['id']
     m.connection()['asset'].insert_one(r)
 
