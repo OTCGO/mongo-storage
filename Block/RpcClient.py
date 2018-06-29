@@ -102,6 +102,26 @@ class RpcClient(object):
 
         return r.json()['result']
 
+    # get decimals
+    def get_nep5_decimals(self,asset_id):
+        r = requests.post(self.url, json={
+            "jsonrpc": "2.0",
+            "method": "invokefunction",
+            "params": [
+                asset_id,
+                "decimals", 
+                []
+                ],
+            "id": 2
+        })
+        if r.json()['result'] is None:
+            self.get_nep5_decimals(asset_id)
+
+        # if r.json()['error']:
+        #     self.get_asset_state(asset_id)
+
+        return r.json()['result']
+
 
 if __name__ == "__main__":
     pass

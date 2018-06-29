@@ -185,6 +185,10 @@ def handle_nep5(txid, blockIndex):
                     if item['state']['value'][0]['value'] != "7472616e73666572":
                         return
                     if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
+                        # handle decimals
+                        decimals = b.get_nep5_decimals(item['contract'])['stack'][0]['value']
+                        print('decimals',decimals)
+
                         # print('handle_nep5')
                         nep5_assert = m.connection()['asset'].find_one({
                             "assetId": item['contract'],
@@ -213,6 +217,11 @@ def handle_nep5(txid, blockIndex):
                                     'blockIndex': blockIndex
                                 })
 
+                            if(item['state']['value'][3]['type'] == "ByteArray"):
+                                value = Tool.hex_to_num_str(item['state']['value'][3]['value'],decimals)
+
+                            if(item['state']['value'][3]['type'] == "Integer"):
+                                value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
                             nep5_arr.append({
                                 # "txid": txid,
                                 "assetId": item['contract'],
@@ -221,7 +230,7 @@ def handle_nep5(txid, blockIndex):
                                 "from": '',
                                 # 输入
                                 "to": address_to,
-                                "value": Tool.hex_to_num_str(item['state']['value'][3]['value']),
+                                "value": value,
                             })
                         else:
                             # 判断地址from
@@ -247,6 +256,12 @@ def handle_nep5(txid, blockIndex):
                                     'address': address_to,
                                     'blockIndex': blockIndex
                                 })
+
+                            # handle value
+                            if(item['state']['value'][3]['type'] == "ByteArray"):
+                                value = Tool.hex_to_num_str(item['state']['value'][3]['value'],decimals)
+                            if(item['state']['value'][3]['type'] == "Integer"):
+                                value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
                             nep5_arr.append({
                                 # "txid": txid,
                                 "assetId": item['contract'],
@@ -255,7 +270,7 @@ def handle_nep5(txid, blockIndex):
                                 "from": address_from,
                                 # 输入
                                 "to": address_to,
-                                "value": Tool.hex_to_num_str(item['state']['value'][3]['value']),
+                                "value": value,
                             })
 
         return nep5_arr
