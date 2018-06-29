@@ -61,8 +61,6 @@ def main():
 if __name__ == "__main__":
     try:
         logger.info('main start')
-        # del_all()
-        # create_index()
         main()
     except Exception as e:
         logger.exception(e)

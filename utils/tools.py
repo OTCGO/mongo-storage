@@ -7,6 +7,7 @@ import bitcoin
 import asyncio
 import hashlib
 from random import randint
+import math
 
 def sci_to_str(sciStr):
     '''科学计数法转换成字符串'''
@@ -86,15 +87,23 @@ class Tool:
         return ''.join([cls.get_random_byte() for i in range(0,num)])
 
     @staticmethod
-    def hex_to_num_str(fixed8_str):
+    def hex_to_num_str(fixed8_str,decimals=8):
         try:
             hex_str = big_or_little(fixed8_str)
             d = D(int('0x' + hex_str, 16))
-            return sci_to_str(str(d/100000000))
+            return sci_to_str(str(d/(D(math.pow(10,int(decimals))))))
         except Exception as e:
             print(e)
             return 0
 
+    @staticmethod
+    def hex_to_num_intstr(int_str,decimals=8):
+        try:
+            d = D(int(int_str))
+            return sci_to_str(str(d/(D(math.pow(10,int(decimals))))))
+        except Exception as e:
+            print(e)
+            return 0
 
     @staticmethod
     def address_to_scripthash(address):
