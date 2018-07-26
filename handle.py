@@ -95,6 +95,7 @@ def save_block(start, length):
 
             # m_block =  m_block or b.get_block(index)
             for tx in m_block['tx']:
+                # print('tx',tx['txid'])
                 # 判断 m_transaction 是否已经存在
                 m_transaction = m.connection()['transaction'].find_one({
                     'txid': tx['txid']
@@ -123,7 +124,7 @@ def save_transaction(tx, blockIndex):
     # InvocationTransaction 需要单独处理
     if tx['type'] == 'InvocationTransaction':
         tx['nep5'] = handle_nep5(tx['txid'], blockIndex) or []
-        #print('nep5', tx['nep5'])
+        print('nep5', tx['nep5'])
 
     for vin in tx['vin']:
         utxo = b.get_raw_transaction(vin['txid'])['vout'][vin['vout']]
@@ -168,7 +169,7 @@ def save_state():
 
 
 def handle_nep5(txid, blockIndex):
-    # print("handle_nep5",txid)
+    print("handle_nep5",txid)
     # 0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f
     try:
         r = b.get_application_log(txid)
@@ -183,7 +184,7 @@ def handle_nep5(txid, blockIndex):
                 for item in r['notifications']:
                     # not transfer
                     if item['state']['value'][0]['value'] != "7472616e73666572":
-                        return
+                        break
                     if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
                         # handle decimals
                         decimals = b.get_nep5_decimals(item['contract'])['stack'][0]['value']
@@ -222,6 +223,7 @@ def handle_nep5(txid, blockIndex):
 
                             if(item['state']['value'][3]['type'] == "Integer"):
                                 value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
+
                             nep5_arr.append({
                                 # "txid": txid,
                                 "assetId": item['contract'],
@@ -260,8 +262,11 @@ def handle_nep5(txid, blockIndex):
                             # handle value
                             if(item['state']['value'][3]['type'] == "ByteArray"):
                                 value = Tool.hex_to_num_str(item['state']['value'][3]['value'],decimals)
+
                             if(item['state']['value'][3]['type'] == "Integer"):
                                 value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
+
+                            # print('value',value)
                             nep5_arr.append({
                                 # "txid": txid,
                                 "assetId": item['contract'],
@@ -273,8 +278,13 @@ def handle_nep5(txid, blockIndex):
                                 "value": value,
                             })
 
+                            
+
+
+        # print('nep5_arr',nep5_arr)
         return nep5_arr
 
-    except Exception:
+    except Exception as e:
+        print("Exception",e)
         logger.error('handle_nep5 txid %s', txid)
         return []

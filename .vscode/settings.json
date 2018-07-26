@@ -1,3 +1,4 @@
 {
-    "python.linting.lintOnSave": true
+    "python.linting.lintOnSave": true,
+    "python.pythonPath": "/Users/wei/.local/share/virtualenvs/www-bOweEH5x/bin/python"
 }
