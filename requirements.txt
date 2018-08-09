@@ -7,3 +7,4 @@ bitcoin==1.1.42
 pycoin==0.80
 pymongo==3.6.0
 python-dotenv==0.8.0
+redis==2.10.6

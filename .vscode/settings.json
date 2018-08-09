@@ -1,4 +1,4 @@
 {
     "python.linting.lintOnSave": true,
-    "python.pythonPath": "/Users/wei/.local/share/virtualenvs/www-bOweEH5x/bin/python"
+    "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.6/bin/python3"
 }
