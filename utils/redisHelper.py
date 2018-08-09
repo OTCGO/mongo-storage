@@ -1,8 +1,8 @@
 import redis
 
 class RedisHelper:
-    def __init__(self):
-        self.__conn = redis.Redis(host='127.0.0.1')
+    def __init__(self,host):
+        self.__conn = redis.Redis(host=host)
 
 
 #发送消息
