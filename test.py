@@ -36,6 +36,6 @@ def verify_blocks(start):
 if __name__ == "__main__":
     try:
         print('start')
-        verify_blocks(2598464)
+        verify_blocks(2618455)
     except Exception as e:
         logger.exception(e)
