@@ -190,7 +190,7 @@ def handle_nep5(txid, blockIndex):
                         break
                     if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
                         # handle decimals
-                        decimals = b.get_nep5_decimals(item['contract'])['stack'][0]['value'] or 8
+                        decimals = b.get_nep5_decimals(item['contract'])['stack'][0]['value'] or 0
                         print('decimals',decimals)
 
                         # print('handle_nep5')
