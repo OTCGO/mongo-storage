@@ -36,7 +36,7 @@ def async_current():
         r = b.get_block_count()
         m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
         print('r - 1 - m_block',r - 1 - m_block['index'])
-        save_block(m_block['index'] + 1 , r - 3 - m_block['index'] )  
+        save_block(m_block['index'] + 1 , r - 2 - m_block['index'] )  
 
     except Exception as e:
         logger.exception(e)
