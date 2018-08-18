@@ -17,8 +17,7 @@ from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger
 
-from  utils.redisHelper import RedisHelper
-
+from utils.redisHelper import RedisHelper
 
 
 load_dotenv(find_dotenv(), override=True)
@@ -35,6 +34,8 @@ obj = RedisHelper(os.environ.get('REDIS'))
 chan = "nep5"
 
 # create index
+
+
 def create_index():
     m.connection()['block'].create_index([('index', DESCENDING)], unique=True)
 
@@ -45,7 +46,7 @@ def create_index():
     m.connection()['transaction'].create_index(
         [('vin.utxo.address', ASCENDING)])
     m.connection()['transaction'].create_index(
-        [('vin.utxo.asset', ASCENDING)])    
+        [('vin.utxo.asset', ASCENDING)])
     m.connection()['transaction'].create_index([('vout.address', ASCENDING)])
     m.connection()['transaction'].create_index([('vout.asset', ASCENDING)])
 
@@ -55,13 +56,11 @@ def create_index():
 
     m.connection()['address'].create_index(
         [('address', DESCENDING)], unique=True)
-    m.connection()['address'].create_index([('blockIndex', ASCENDING)])    
+    m.connection()['address'].create_index([('blockIndex', ASCENDING)])
 
     m.connection()['asset'].create_index(
         [('assetId', DESCENDING)], unique=True)
-    m.connection()['asset'].create_index([('blockIndex', ASCENDING)])    
-
-
+    m.connection()['asset'].create_index([('blockIndex', ASCENDING)])
 
     m.connection()['state'].create_index([('index', DESCENDING)])
     m.connection()['state'].delete_many({})
@@ -77,7 +76,7 @@ def del_all():
     m.connection()['state'].delete_many({})
 
 
-def save_block(b,start, length):
+def save_block(b, start, length):
     print('start', start)
     print('length', length)
 
@@ -115,7 +114,7 @@ def save_block(b,start, length):
         logger.error('save_block index %s', index)
         logger.exception(e)
         time.sleep(1)
-        save_block(b,start, length)
+        save_block(b, start, length)
         # m.connection()['state'].insert_one({
         #     'index': index,
         #     'error': True
@@ -126,7 +125,7 @@ def save_transaction(b, tx, blockIndex):
 
     # InvocationTransaction 需要单独处理
     if tx['type'] == 'InvocationTransaction':
-        tx['nep5'] = handle_nep5(b,tx['txid'], blockIndex) or []
+        tx['nep5'] = handle_nep5(b, tx['txid'], blockIndex) or []
         print('nep5', tx['nep5'])
 
     for vin in tx['vin']:
@@ -156,10 +155,10 @@ def save_address(b, tx, blockIndex):
             'assetId': vout['asset']
         })
         if m_assert is None:
-            save_assert(b, vout['asset'],blockIndex)
+            save_assert(b, vout['asset'], blockIndex)
 
 
-def save_assert(b, assetId,blockIndex):
+def save_assert(b, assetId, blockIndex):
     r = b.get_asset_state(assetId)
     r['assetId'] = r['id']
     r['blockIndex'] = blockIndex
@@ -171,8 +170,8 @@ def save_state():
     pass
 
 
-def handle_nep5(b,txid, blockIndex):
-    print("handle_nep5",txid)
+def handle_nep5(b, txid, blockIndex):
+    print("handle_nep5", txid)
     # 0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f
     try:
         r = b.get_application_log(txid)
@@ -183,15 +182,16 @@ def handle_nep5(b,txid, blockIndex):
                 # print("r",r)
                 # vmstate"是虚拟机执行合约后的状态，如果包含"FAULT"的话，
                 if "FAULT" in r['vmstate']:
-                    return 
+                    return
                 for item in r['notifications']:
                     # not transfer
                     if item['state']['value'][0]['value'] != "7472616e73666572":
                         break
                     if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
                         # handle decimals
-                        decimals = b.get_nep5_decimals(item['contract'])['stack'][0]['value'] or 0
-                        print('decimals',decimals)
+                        decimals = b.get_nep5_decimals(item['contract'])[
+                            'stack'][0]['value'] or 0
+                        print('decimals', decimals)
 
                         # print('handle_nep5')
                         nep5_assert = m.connection()['asset'].find_one({
@@ -222,12 +222,14 @@ def handle_nep5(b,txid, blockIndex):
                                 })
 
                             if(item['state']['value'][3]['type'] == "ByteArray"):
-                                value = Tool.hex_to_num_str(item['state']['value'][3]['value'],decimals)
+                                value = Tool.hex_to_num_str(
+                                    item['state']['value'][3]['value'], decimals)
 
                             if(item['state']['value'][3]['type'] == "Integer"):
-                                value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
+                                value = Tool.hex_to_num_intstr(
+                                    item['state']['value'][3]['value'], decimals)
 
-                            # obj.public(chan,b.get_node(),address_to) 
+                            obj.public(chan, address_to)
 
                             nep5_arr.append({
                                 # "txid": txid,
@@ -266,14 +268,15 @@ def handle_nep5(b,txid, blockIndex):
 
                             # handle value
                             if(item['state']['value'][3]['type'] == "ByteArray"):
-                                value = Tool.hex_to_num_str(item['state']['value'][3]['value'],decimals)
+                                value = Tool.hex_to_num_str(
+                                    item['state']['value'][3]['value'], decimals)
 
                             if(item['state']['value'][3]['type'] == "Integer"):
-                                value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
+                                value = Tool.hex_to_num_intstr(
+                                    item['state']['value'][3]['value'], decimals)
 
-
-                            # obj.public(chan,b.get_node(),address_to) 
-                            # obj.public(chan,b.get_node(),address_to) 
+                            obj.public(chan, address_to)
+                            obj.public(chan, address_to)
 
                             # print('value',value)
                             nep5_arr.append({
@@ -287,13 +290,10 @@ def handle_nep5(b,txid, blockIndex):
                                 "value": value,
                             })
 
-                            
-
-
         # print('nep5_arr',nep5_arr)
         return nep5_arr
 
     except Exception as e:
-        print("Exception",e)
+        print("Exception", e)
         logger.error('handle_nep5 txid %s', txid)
         return []

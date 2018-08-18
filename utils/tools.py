@@ -50,7 +50,7 @@ def get_best_node(url):
     r = requests.get(url)
     if len(r.json()['log']):
         return random.choice(r.json()['log'])
-    return ''
+    return get_best_node(url)
 
 class Tool:
     @staticmethod
