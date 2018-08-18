@@ -227,7 +227,7 @@ def handle_nep5(b,txid, blockIndex):
                             if(item['state']['value'][3]['type'] == "Integer"):
                                 value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
 
-                            obj.public(chan,address_to)
+                            # obj.public(chan,b.get_node(),address_to) 
 
                             nep5_arr.append({
                                 # "txid": txid,
@@ -272,8 +272,8 @@ def handle_nep5(b,txid, blockIndex):
                                 value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
 
 
-                            obj.public(chan,address_to) 
-                            obj.public(chan,address_from) 
+                            # obj.public(chan,b.get_node(),address_to) 
+                            # obj.public(chan,b.get_node(),address_to) 
 
                             # print('value',value)
                             nep5_arr.append({

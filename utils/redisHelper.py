@@ -6,7 +6,7 @@ class RedisHelper:
 
 
 #发送消息
-    def public(self,chan,msg):
+    def public(self,chan,url,msg):
         self.__conn.publish(chan,msg)
         return True
 #订阅
