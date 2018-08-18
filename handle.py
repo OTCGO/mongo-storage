@@ -27,7 +27,7 @@ print('RPC', os.environ.get('RPC'))
 print('MONGODB', os.environ.get('MONGODB'))
 print('DB', os.environ.get('DB'))
 print('WORK_COUNT', cpu_count())
-b = RpcClient(os.environ.get('RPC'))
+# b = RpcClient(os.environ.get('RPC'))
 m = Mongo(os.environ.get('MONGODB'), os.environ.get('DB'))
 obj = RedisHelper(os.environ.get('REDIS'))
 
@@ -77,7 +77,7 @@ def del_all():
     m.connection()['state'].delete_many({})
 
 
-def save_block(start, length):
+def save_block(b,start, length):
     print('start', start)
     print('length', length)
 
@@ -104,10 +104,10 @@ def save_block(start, length):
                     'txid': tx['txid']
                 })
                 if m_transaction is None:
-                    save_transaction(tx, m_block['index'])
+                    save_transaction(b, tx, m_block['index'])
 
                 # 保存address
-                save_address(tx, m_block['index'])
+                save_address(b, tx, m_block['index'])
 
             index = index + 1
         return True
@@ -115,18 +115,18 @@ def save_block(start, length):
         logger.error('save_block index %s', index)
         logger.exception(e)
         time.sleep(1)
-        save_block(start, length)
+        save_block(b,start, length)
         # m.connection()['state'].insert_one({
         #     'index': index,
         #     'error': True
         # })
 
 
-def save_transaction(tx, blockIndex):
+def save_transaction(b, tx, blockIndex):
 
     # InvocationTransaction 需要单独处理
     if tx['type'] == 'InvocationTransaction':
-        tx['nep5'] = handle_nep5(tx['txid'], blockIndex) or []
+        tx['nep5'] = handle_nep5(b,tx['txid'], blockIndex) or []
         print('nep5', tx['nep5'])
 
     for vin in tx['vin']:
@@ -138,7 +138,7 @@ def save_transaction(tx, blockIndex):
     m.connection()['transaction'].insert_one(tx)
 
 
-def save_address(tx, blockIndex):
+def save_address(b, tx, blockIndex):
     for vout in tx['vout']:
         #print('save_address', vout)
         # 判断 m_address 是否已经存在
@@ -156,10 +156,10 @@ def save_address(tx, blockIndex):
             'assetId': vout['asset']
         })
         if m_assert is None:
-            save_assert(vout['asset'],blockIndex)
+            save_assert(b, vout['asset'],blockIndex)
 
 
-def save_assert(assetId,blockIndex):
+def save_assert(b, assetId,blockIndex):
     r = b.get_asset_state(assetId)
     r['assetId'] = r['id']
     r['blockIndex'] = blockIndex
@@ -171,7 +171,7 @@ def save_state():
     pass
 
 
-def handle_nep5(txid, blockIndex):
+def handle_nep5(b,txid, blockIndex):
     print("handle_nep5",txid)
     # 0x9db4725a8b6a43ce91d5085fe88df59578993d7cd0b2397934215463c48d575f
     try:
@@ -227,7 +227,7 @@ def handle_nep5(txid, blockIndex):
                             if(item['state']['value'][3]['type'] == "Integer"):
                                 value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
 
-                            obj.public(chan,address_to)
+                            # obj.public(chan,b.get_node(),address_to) 
 
                             nep5_arr.append({
                                 # "txid": txid,
@@ -272,8 +272,8 @@ def handle_nep5(txid, blockIndex):
                                 value =  Tool.hex_to_num_intstr(item['state']['value'][3]['value'],decimals)
 
 
-                            obj.public(chan,address_to) 
-                            obj.public(chan,address_from) 
+                            # obj.public(chan,b.get_node(),address_to) 
+                            # obj.public(chan,b.get_node(),address_to) 
 
                             # print('value',value)
                             nep5_arr.append({

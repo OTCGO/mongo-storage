@@ -8,6 +8,9 @@ import asyncio
 import hashlib
 from random import randint
 import math
+import requests
+import random
+
 
 def sci_to_str(sciStr):
     '''科学计数法转换成字符串'''
@@ -42,6 +45,12 @@ def big_or_little(arr):
             arr[idx], arr[length - idx] = arr[length - idx], arr[idx]
     return arr.decode('ascii')
 
+# 获取best node
+def get_best_node(url):
+    r = requests.get(url)
+    if len(r.json()['log']):
+        return random.choice(r.json()['log'])
+    return ''
 
 class Tool:
     @staticmethod

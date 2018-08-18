@@ -122,6 +122,9 @@ class RpcClient(object):
 
         return r.json()['result']
 
+    # get url 
+    def get_node(self):
+        return self.url
 
 if __name__ == "__main__":
     pass

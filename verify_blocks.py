@@ -17,17 +17,24 @@ from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger
 from handle import save_block
-
+from utils.tools import get_best_node
 
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
 load_dotenv(find_dotenv(), override=True)
 
-b = RpcClient(os.environ.get('RPC'))
+# b = get_best_node(os.environ.get('NODE'))
 m = Mongo(os.environ.get('MONGODB'), os.environ.get('DB'))
 work_count = cpu_count()
 
 def verify_blocks(start):
     try:
+        ## random node
+        node = get_best_node(os.environ.get('NODE'))
+        if node == '':
+            return
+
+
+        b = RpcClient(node)
         end = b.get_block_count()
         print('end',end)
         m_block = m.connection()['block'].find({'index': {'$gte': 0}},{'index':1}).sort('index',ASCENDING)
@@ -39,9 +46,9 @@ def verify_blocks(start):
             print('item.index',item['index'])
             if point != item['index']:
                 logger.info('verify_blocks %s',point)
-                m_block = save_block(point, 0)
+                m_block = save_block(b, point, 0)
                 if m_block is None:
-                    save_block(point, 0)
+                    save_block(b, point, 0)
 
             m.connection()['state'].update_one({'_id':ObjectId('5a95047efc2a4961941484e6')},{
                     '$set':{

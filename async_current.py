@@ -20,12 +20,12 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime
 
 from handle import save_block
-
+from utils.tools import get_best_node
 
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
 load_dotenv(find_dotenv(), override=True)
 
-b = RpcClient(os.environ.get('RPC'))
+# b = get_best_node(os.environ.get('NODE'))
 m = Mongo(os.environ.get('MONGODB'), os.environ.get('DB'))
 work_count = cpu_count()
 
@@ -33,10 +33,17 @@ work_count = cpu_count()
 
 def async_current():
     try:
+        ## random node
+        node = get_best_node(os.environ.get('NODE'))
+        if node == '':
+            return
+
+
+        b = RpcClient(node)
         r = b.get_block_count()
         m_block = m.connection()['block'].find_one({},{'index':1},sort = [('index',DESCENDING)]) or { 'index' : -1}
         print('r - 1 - m_block',r - 1 - m_block['index'])
-        save_block(m_block['index'] + 1 , r - 2 - m_block['index'] )  
+        save_block(b, m_block['index'] + 1 , r - 2 - m_block['index'] )  
 
     except Exception as e:
         logger.exception(e)
