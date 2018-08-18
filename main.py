@@ -14,12 +14,13 @@ from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger
 from handle import save_block,del_all,create_index
-
+from utils.tools import get_best_node
 
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
 load_dotenv(find_dotenv(), override=True)
 
-b = RpcClient(os.environ.get('RPC'))
+
+
 work_count = cpu_count()
 
 def main():
@@ -27,6 +28,13 @@ def main():
     try:
         start = time.time()
 
+        ## random node
+        node = get_best_node(os.environ.get('NODE'))
+        if node == '':
+            return
+
+
+        b = RpcClient(node)
         r = b.get_block_count()
         print('get_block_count',r)
         skip = 1000
@@ -35,7 +43,7 @@ def main():
 
         for x in range( 0 , r - 1, skip):
             print('x', x)
-            pool.apply_async(save_block, args=(x, skip - 1)) # 非阻塞
+            pool.apply_async(save_block, args=(b, x, skip - 1)) # 非阻塞
 
 
 

@@ -17,6 +17,7 @@ from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger
 from handle import save_block
+from utils.tools import get_best_node
 
 
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
@@ -28,7 +29,15 @@ work_count = cpu_count()
 
 def verify_blocks(start):
     try:
-        save_block(start, 0)
+
+        ## random node
+        node = get_best_node(os.environ.get('NODE'))
+        if node == '':
+            return
+
+
+        b = RpcClient(node)
+        save_block(b, start, 0)
     except Exception as e:
         logger.exception(e)
 
