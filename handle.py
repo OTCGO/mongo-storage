@@ -178,12 +178,12 @@ def handle_nep5(b, txid, blockIndex):
         # print("r",r)
         nep5_arr = []
         if r is not None:
-            if 'notifications' in r:
-                # print("r",r)
-                # vmstate"是虚拟机执行合约后的状态，如果包含"FAULT"的话，
-                if "FAULT" in r['vmstate']:
-                    return
-                for item in r['notifications']:
+             # print("r",r)
+            # vmstate"是虚拟机执行合约后的状态，如果包含"FAULT"的话，
+            if "FAULT" in r['executions']['vmstate']:
+                return           
+            if 'notifications' in r['executions']['notifications']:
+                for item in r['executions']['notifications']:
                     # not transfer
                     if item['state']['value'][0]['value'] != "7472616e73666572":
                         break

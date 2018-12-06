@@ -10,7 +10,7 @@ from random import randint
 import math
 import requests
 import random
-
+import os
 
 def sci_to_str(sciStr):
     '''科学计数法转换成字符串'''
@@ -47,10 +47,11 @@ def big_or_little(arr):
 
 # 获取best node
 def get_best_node(url):
-    r = requests.get(url)
-    if len(r.json()['log']):
-        return random.choice(r.json()['log'])
-    return get_best_node(url)
+    # r = requests.get(url)
+    # if len(r.json()['log']):
+    #     return random.choice(r.json()['log'])
+    # return get_best_node(url)
+    return os.environ.get('NODE2.9')
 
 class Tool:
     @staticmethod
