@@ -51,7 +51,7 @@ def get_best_node(url):
     # if len(r.json()['log']):
     #     return random.choice(r.json()['log'])
     # return get_best_node(url)
-    return os.environ.get('NODE2.9')
+    return os.environ.get('RPC')
 
 class Tool:
     @staticmethod

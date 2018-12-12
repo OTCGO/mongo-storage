@@ -126,7 +126,7 @@ def save_transaction(b, tx, blockIndex):
     # InvocationTransaction 需要单独处理
     if tx['type'] == 'InvocationTransaction':
         tx['nep5'] = handle_nep5(b, tx['txid'], blockIndex) or []
-        print('nep5', tx['nep5'])
+        # print('nep5', tx['nep5'])
 
     for vin in tx['vin']:
         utxo = b.get_raw_transaction(vin['txid'])['vout'][vin['vout']]
@@ -178,117 +178,121 @@ def handle_nep5(b, txid, blockIndex):
         # print("r",r)
         nep5_arr = []
         if r is not None:
-             # print("r",r)
+            # print("rvmstate",r['executions']['vmstate'])
             # vmstate"是虚拟机执行合约后的状态，如果包含"FAULT"的话，
-            if "FAULT" in r['executions']['vmstate']:
-                return           
-            if 'notifications' in r['executions']['notifications']:
-                for item in r['executions']['notifications']:
+            for iteme in r['executions']:
+                # print("iteme",iteme)
+                if "FAULT" in iteme['vmstate']:
+                    continue
+                # print("iteme",'notifications' in iteme.keys())           
+                if 'notifications' in iteme.keys():         
                     # not transfer
-                    if item['state']['value'][0]['value'] != "7472616e73666572":
-                        break
-                    if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
-                        # handle decimals
-                        decimals = b.get_nep5_decimals(item['contract'])[
-                            'stack'][0]['value'] or 0
-                        print('decimals', decimals)
+                    for item in iteme['notifications']:
+                        # print("item",item)
+                        if item['state']['value'][0]['value'] != "7472616e73666572":
+                            continue
+                        if 'contract' in item and 'state' in item and 'value' in item['state'] and len(item['state']['value']) == 4:
+                            # handle decimals
+                            decimals = b.get_nep5_decimals(item['contract'])[
+                                'stack'][0]['value'] or 0
+                            # print('decimals', decimals)
 
-                        # print('handle_nep5')
-                        nep5_assert = m.connection()['asset'].find_one({
-                            "assetId": item['contract'],
-                        })
-                        #print('nep5_assert', nep5_assert)
-                        # asserts
-                        if nep5_assert is None:
-                            m.connection()['asset'].insert_one({
+                            # print('handle_nep5')
+                            nep5_assert = m.connection()['asset'].find_one({
                                 "assetId": item['contract'],
-                                'blockIndex': blockIndex,
-                                'type': 'nep5'
                             })
-
-                        # mintTokens
-                        if item['state']['value'][1]['value'] == "":
-                            # 判断地址
-                            address_to = Tool.scripthash_to_address(
-                                unhexlify(item['state']['value'][2]['value']))
-                            nep5_address_to = m.connection()['address'].find_one({
-                                'address': address_to
-                            })
-
-                            if nep5_address_to is None:
-                                m.connection()['address'].insert_one({
-                                    'address': address_to,
-                                    'blockIndex': blockIndex
+                            #print('nep5_assert', nep5_assert)
+                            # asserts
+                            if nep5_assert is None:
+                                m.connection()['asset'].insert_one({
+                                    "assetId": item['contract'],
+                                    'blockIndex': blockIndex,
+                                    'type': 'nep5'
                                 })
 
-                            if(item['state']['value'][3]['type'] == "ByteArray"):
-                                value = Tool.hex_to_num_str(
-                                    item['state']['value'][3]['value'], decimals)
-
-                            if(item['state']['value'][3]['type'] == "Integer"):
-                                value = Tool.hex_to_num_intstr(
-                                    item['state']['value'][3]['value'], decimals)
-
-                            obj.public(chan, address_to)
-
-                            nep5_arr.append({
-                                # "txid": txid,
-                                "assetId": item['contract'],
-                                "operation": 'mintTokens',
-                                # 转出 为空
-                                "from": '',
-                                # 输入
-                                "to": address_to,
-                                "value": value,
-                            })
-                        else:
-                            # 判断地址from
-                            address_from = Tool.scripthash_to_address(
-                                unhexlify(item['state']['value'][1]['value']))
-                            nep5_address_from = m.connection()['address'].find_one({
-                                'address': address_from
-                            })
-                            if nep5_address_from is None:
-                                m.connection()['address'].insert_one({
-                                    'address': address_from,
-                                    'blockIndex': blockIndex
+                            # mintTokens
+                            if item['state']['value'][1]['value'] == "":
+                                # 判断地址
+                                address_to = Tool.scripthash_to_address(
+                                    unhexlify(item['state']['value'][2]['value']))
+                                nep5_address_to = m.connection()['address'].find_one({
+                                    'address': address_to
                                 })
 
-                                # 判断地址to
-                            address_to = Tool.scripthash_to_address(
-                                unhexlify(item['state']['value'][2]['value']))
-                            nep5_address_to = m.connection()['address'].find_one({
-                                'address': address_to
-                            })
-                            if nep5_address_to is None:
-                                m.connection()['address'].insert_one({
-                                    'address': address_to,
-                                    'blockIndex': blockIndex
+                                if nep5_address_to is None:
+                                    m.connection()['address'].insert_one({
+                                        'address': address_to,
+                                        'blockIndex': blockIndex
+                                    })
+
+                                if(item['state']['value'][3]['type'] == "ByteArray"):
+                                    value = Tool.hex_to_num_str(
+                                        item['state']['value'][3]['value'], decimals)
+
+                                if(item['state']['value'][3]['type'] == "Integer"):
+                                    value = Tool.hex_to_num_intstr(
+                                        item['state']['value'][3]['value'], decimals)
+
+                                obj.public(chan, address_to)
+
+                                nep5_arr.append({
+                                    # "txid": txid,
+                                    "assetId": item['contract'],
+                                    "operation": 'mintTokens',
+                                    # 转出 为空
+                                    "from": '',
+                                    # 输入
+                                    "to": address_to,
+                                    "value": value,
                                 })
+                            else:
+                                # 判断地址from
+                                address_from = Tool.scripthash_to_address(
+                                    unhexlify(item['state']['value'][1]['value']))
+                                nep5_address_from = m.connection()['address'].find_one({
+                                    'address': address_from
+                                })
+                                if nep5_address_from is None:
+                                    m.connection()['address'].insert_one({
+                                        'address': address_from,
+                                        'blockIndex': blockIndex
+                                    })
 
-                            # handle value
-                            if(item['state']['value'][3]['type'] == "ByteArray"):
-                                value = Tool.hex_to_num_str(
-                                    item['state']['value'][3]['value'], decimals)
+                                    # 判断地址to
+                                address_to = Tool.scripthash_to_address(
+                                    unhexlify(item['state']['value'][2]['value']))
+                                nep5_address_to = m.connection()['address'].find_one({
+                                    'address': address_to
+                                })
+                                if nep5_address_to is None:
+                                    m.connection()['address'].insert_one({
+                                        'address': address_to,
+                                        'blockIndex': blockIndex
+                                    })
 
-                            if(item['state']['value'][3]['type'] == "Integer"):
-                                value = Tool.hex_to_num_intstr(
-                                    item['state']['value'][3]['value'], decimals)
+                                # handle value
+                                if(item['state']['value'][3]['type'] == "ByteArray"):
+                                    value = Tool.hex_to_num_str(
+                                        item['state']['value'][3]['value'], decimals)
 
-                            obj.public(chan, address_to)
-                            obj.public(chan, address_to)
+                                if(item['state']['value'][3]['type'] == "Integer"):
+                                    value = Tool.hex_to_num_intstr(
+                                        item['state']['value'][3]['value'], decimals)
 
-                            # print('value',value)
-                            nep5_arr.append({
-                                # "txid": txid,
-                                "assetId": item['contract'],
-                                "operation": 'transfer',
-                                # 转出
-                                "from": address_from,
-                                # 输入
-                                "to": address_to,
-                                "value": value,
-                            })
+                                obj.public(chan, address_to)
+                                obj.public(chan, address_to)
+
+                                # print('value',value)
+                                nep5_arr.append({
+                                    # "txid": txid,
+                                    "assetId": item['contract'],
+                                    "operation": 'transfer',
+                                    # 转出
+                                    "from": address_from,
+                                    # 输入
+                                    "to": address_to,
+                                    "value": value,
+                                })
 
         # print('nep5_arr',nep5_arr)
         return nep5_arr
