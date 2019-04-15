@@ -47,6 +47,10 @@ def main(start,end):
             for vout in result["vout"]:
                 handle_utxo(vout["address"],vout["asset"],result["blockIndex"])
 
+
+            if result["nep5"] is None:
+                continue
+                
             for nep5 in result["nep5"]:
                 handle_nep5(nep5["to"],nep5["assetId"],result["blockIndex"])
                 handle_nep5(nep5["from"],nep5["assetId"],result["blockIndex"])
