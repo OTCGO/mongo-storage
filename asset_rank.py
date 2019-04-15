@@ -47,9 +47,9 @@ def main(start,end):
             for vout in result["vout"]:
                 handle_utxo(vout["address"],vout["asset"],result["blockIndex"])
 
-            if result.has_key('nep5') is False:
+            if 'nep5' not in result.keys():
                 continue
-                
+
             if result["nep5"] is None:
                 continue
 
