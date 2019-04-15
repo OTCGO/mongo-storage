@@ -117,10 +117,57 @@ class RpcClient(object):
         if r.json()['result'] is None:
             self.get_nep5_decimals(asset_id)
 
-        # if r.json()['error']:
-        #     self.get_asset_state(asset_id)
+        return r.json()['result']
+
+    # get 根据账户地址，查询账户全局资产（如 NEO、GAS 等）资产信息。
+    def get_account_state(self,address):
+        r = requests.post(self.url, json={
+            "jsonrpc": "2.0",
+            "method": "getaccountstate",
+            "params": [address],
+            "id": 1
+        })
+        if r.json()['result'] is None:
+            self.get_account_state(address)
 
         return r.json()['result']
+
+    def invokefunction_decimals(self,asset_id):
+        r = requests.post(self.url, json={
+            "jsonrpc": "2.0",
+            "method": "invokefunction",
+            "params": [
+                asset_id,
+                "decimals",
+                []
+                ],
+            "id": 2
+        })
+        if r.json()['result'] is None:
+            self.invokefunction_decimals(asset_id)
+
+        return r.json()['result']   
+
+    def invokefunction_balanceOf(self,asset_id,address_hash160):
+        r = requests.post(self.url, json={
+            "jsonrpc": "2.0",
+            "method": "invokefunction",
+            "params": [
+                 asset_id,
+                "balanceOf",
+                [
+                {
+                    "type": "Hash160",
+                    "value": address_hash160
+                }
+                ]
+            ],
+            "id": 3
+        })
+        if r.json()['result'] is None:
+            self.invokefunction_balanceOf(asset_id,address_hash160)
+
+        return r.json()['result']  
 
     # get url 
     def get_node(self):

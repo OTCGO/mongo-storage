@@ -28,7 +28,7 @@ print('DB', os.environ.get('DB'))
 print('WORK_COUNT', cpu_count())
 # b = RpcClient(os.environ.get('RPC'))
 m = Mongo(os.environ.get('MONGODB'), os.environ.get('DB'))
-obj = RedisHelper(os.environ.get('REDIS'))
+# obj = RedisHelper(os.environ.get('REDIS'))
 
 
 chan = "nep5"
@@ -233,7 +233,7 @@ def handle_nep5(b, txid, blockIndex):
                                     value = Tool.hex_to_num_intstr(
                                         item['state']['value'][3]['value'], decimals)
 
-                                obj.public(chan, address_to)
+                                # obj.public(chan, address_to)
 
                                 nep5_arr.append({
                                     # "txid": txid,
@@ -279,8 +279,8 @@ def handle_nep5(b, txid, blockIndex):
                                     value = Tool.hex_to_num_intstr(
                                         item['state']['value'][3]['value'], decimals)
 
-                                obj.public(chan, address_to)
-                                obj.public(chan, address_to)
+                                # obj.public(chan, address_to)
+                                # obj.public(chan, address_to)
 
                                 # print('value',value)
                                 nep5_arr.append({
