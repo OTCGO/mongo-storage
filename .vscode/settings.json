@@ -1,4 +1,4 @@
 {
     "python.linting.lintOnSave": true,
-    "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.6/bin/python3"
+    "python.pythonPath": "/Users/wei/anaconda3/envs/py3.7/bin/python"
 }
