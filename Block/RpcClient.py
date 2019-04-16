@@ -164,6 +164,9 @@ class RpcClient(object):
             ],
             "id": 3
         })
+        if 'error' in r.json().keys():
+            return 0
+
         if r.json()['result'] is None:
             self.invokefunction_balanceOf(asset_id,address_hash160)
 

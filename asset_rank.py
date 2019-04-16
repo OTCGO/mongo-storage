@@ -103,6 +103,9 @@ def handle_nep5(address,asset_id,blockIndex):
     
     r_balance = b.invokefunction_balanceOf(asset_id,big_or_little(Tool.address_to_scripthash(address)))
 
+    if r_balance == 0:
+        return
+
     # print('r_balance',r_balance)
 
     if "FAULT" in r_balance['state']:
