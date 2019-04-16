@@ -132,7 +132,7 @@ def save_mongo(asset_id,address,value,blockIndex):
     print("save_mongo",value)
     if value == 0:
         return
-        
+
     try:
         Decimal128(value)
     except Exception as e:
@@ -181,10 +181,9 @@ if __name__ == "__main__":
     try:
         # async_asset_rank()
       # handle_nep5("AJdhvVSxHJixAyw7xn38XbeHjCFmto5SVX","0x08e8c4400f1af2c20c28e0018f29535eb85d15b6",10)
-        # sched = BlockingScheduler()
-        # sched.add_job(async_asset_rank, 'interval', seconds=40)
-        # sched.start()
-        Decimal128(str(0))
+        sched = BlockingScheduler()
+        sched.add_job(async_asset_rank, 'interval', seconds=40)
+        sched.start()
     except Exception as e:
         logger.exception(e)
         time.sleep(30)
