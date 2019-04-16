@@ -81,7 +81,7 @@ def async_asset_rank():
 
         main(m_balance_status["index"],r-5)
 
-        print("r",r)
+        # print("r",r)
        
     except Exception as e:
         logger.exception(e)
@@ -129,6 +129,14 @@ def handle_nep5(address,asset_id,blockIndex):
 
 
 def save_mongo(asset_id,address,value,blockIndex):
+    print("save_mongo",value)
+
+    try:
+        Decimal128(value)
+    except Exception as e:
+        logger.exception(e)
+        return
+
     m_balance = m.connection()['balance'].find_one({
                    "assetId" : asset_id,
                     "address" : address,
