@@ -130,7 +130,9 @@ def handle_nep5(address,asset_id,blockIndex):
 
 def save_mongo(asset_id,address,value,blockIndex):
     print("save_mongo",value)
-
+    if value == 0:
+        return
+        
     try:
         Decimal128(value)
     except Exception as e:
@@ -147,7 +149,7 @@ def save_mongo(asset_id,address,value,blockIndex):
         m.connection()['balance'].insert_one({
             "assetId" : asset_id,
             "address" : address,
-            "balance" : Decimal128(value) or 0,
+            "balance" : Decimal128(str(value)) or 0,
             "blockIndex":blockIndex
         })
         return
@@ -168,7 +170,7 @@ def save_mongo(asset_id,address,value,blockIndex):
         "$set":{
             "assetId" : asset_id,
             "address" : address,
-            "balance" : Decimal128(value)  or 0 ,
+            "balance" : Decimal128(str(value))  or 0 ,
             "blockIndex":blockIndex
         }
     })
@@ -179,9 +181,10 @@ if __name__ == "__main__":
     try:
         # async_asset_rank()
       # handle_nep5("AJdhvVSxHJixAyw7xn38XbeHjCFmto5SVX","0x08e8c4400f1af2c20c28e0018f29535eb85d15b6",10)
-        sched = BlockingScheduler()
-        sched.add_job(async_asset_rank, 'interval', seconds=40)
-        sched.start()
+        # sched = BlockingScheduler()
+        # sched.add_job(async_asset_rank, 'interval', seconds=40)
+        # sched.start()
+        Decimal128(str(0))
     except Exception as e:
         logger.exception(e)
         time.sleep(30)
