@@ -135,11 +135,11 @@ def save_mongo(asset_id,address,value,blockIndex):
         })
 
     if m_balance is None:
-        print("1")
+        # print("1")
         m.connection()['balance'].insert_one({
             "assetId" : asset_id,
             "address" : address,
-            "balance" : Decimal128(value),
+            "balance" : Decimal128(value) or 0,
             "blockIndex":blockIndex
         })
         return
@@ -160,7 +160,7 @@ def save_mongo(asset_id,address,value,blockIndex):
         "$set":{
             "assetId" : asset_id,
             "address" : address,
-            "balance" : Decimal128(value),
+            "balance" : Decimal128(value)  or 0 ,
             "blockIndex":blockIndex
         }
     })
