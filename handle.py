@@ -18,7 +18,7 @@ import logzero
 from logzero import logger
 
 from utils.redisHelper import RedisHelper
-
+from utils.tools import get_best_node
 
 load_dotenv(find_dotenv(), override=True)
 
@@ -79,6 +79,11 @@ def del_all():
 def save_block(b, start, length):
     print('start', start)
     print('length', length)
+
+    node = get_best_node()
+    b = RpcClient(node)
+
+    # print('RpcClient', b.url)
 
     try:
         index = start

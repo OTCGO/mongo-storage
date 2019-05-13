@@ -46,12 +46,8 @@ def big_or_little(arr):
     return arr.decode('ascii')
 
 # 获取best node
-def get_best_node(url):
-    # r = requests.get(url)
-    # if len(r.json()['log']):
-    #     return random.choice(r.json()['log'])
-    # return get_best_node(url)
-    return os.environ.get('RPC')
+def get_best_node():
+    return random.choice(os.environ.get('RPC_ARRAY').split(','))
 
 class Tool:
     @staticmethod

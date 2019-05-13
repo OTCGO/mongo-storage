@@ -18,7 +18,7 @@ import logzero
 from logzero import logger
 from handle import save_block
 from utils.tools import get_best_node
-
+import random
 
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
 load_dotenv(find_dotenv(), override=True)
@@ -31,7 +31,7 @@ def verify_blocks(start):
     try:
 
         ## random node
-        node = get_best_node(os.environ.get('NODE'))
+        node = get_best_node()
         if node == '':
             return
 
@@ -44,7 +44,8 @@ def verify_blocks(start):
 
 if __name__ == "__main__":
     try:
-        print('start')
-        verify_blocks(2618455)
+        # print('start',os.environ.get('RPC_ARRAY').split(','))
+        print('start',random.choice(os.environ.get('RPC_ARRAY').split(',')))
+        # verify_blocks(3392009)
     except Exception as e:
         logger.exception(e)

@@ -29,7 +29,7 @@ def main():
         start = time.time()
 
         ## random node
-        node = get_best_node(os.environ.get('NODE'))
+        node = get_best_node()
         if node == '':
             return
 

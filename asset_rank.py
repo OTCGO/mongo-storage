@@ -22,7 +22,7 @@ load_dotenv(find_dotenv(), override=True)
 m = Mongo(os.environ.get('MONGODB'), os.environ.get('DB'))
 
 
-node = get_best_node(os.environ.get('NODE'))
+node = get_best_node()
 b = RpcClient(node)
 
 def create_index():

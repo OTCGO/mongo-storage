@@ -22,14 +22,13 @@ from utils.tools import get_best_node
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
 load_dotenv(find_dotenv(), override=True)
 
-# b = get_best_node(os.environ.get('NODE'))
 m = Mongo(os.environ.get('MONGODB'), os.environ.get('DB'))
 work_count = cpu_count()
 
 def verify_blocks(start):
     try:
         ## random node
-        node = get_best_node(os.environ.get('NODE'))
+        node = get_best_node()
         if node == '':
             return
 
