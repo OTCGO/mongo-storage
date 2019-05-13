@@ -36,7 +36,7 @@ def main(start,end):
         print("m_balance_status",start)
 
 
-        m_transaction = m.connection()['transaction'].find({'blockIndex':start}) 
+        m_transaction = m.connection()['transaction'].find({'blockIndex':start}, no_cursor_timeout=True) 
         # print("m_transaction",m_transaction)
 
         for result in m_transaction: 
@@ -57,6 +57,7 @@ def main(start,end):
                 handle_nep5(nep5["to"],nep5["assetId"],result["blockIndex"])
                 handle_nep5(nep5["from"],nep5["assetId"],result["blockIndex"])
 
+        m_transaction.close()
         m.connection()['balanceStatus'].update_one({},{"$set":{"index":start+1}})
         start = start + 1
 
