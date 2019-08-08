@@ -61,12 +61,12 @@ def job():
 
 if __name__ == "__main__":
     try:
-        async_current()
-        # sched = BlockingScheduler()
-        # sched.add_job(async_current, 'interval', seconds=30)
-        # sched.start()
+        # async_current()
+        sched = BlockingScheduler()
+        sched.add_job(async_current, 'interval', seconds=30)
+        sched.start()
     except Exception as e:
         logger.exception(e)
-        # time.sleep(30)
-        # sched.start()
+        time.sleep(30)
+        sched.start()
         
