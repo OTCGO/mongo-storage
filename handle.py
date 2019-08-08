@@ -18,7 +18,7 @@ import logzero
 from logzero import logger
 
 from utils.redisHelper import RedisHelper
-from utils.tools import get_best_node
+from utils.tools import get_random_node
 
 load_dotenv(find_dotenv(), override=True)
 
@@ -80,8 +80,7 @@ def save_block(b, start, length):
     print('start', start)
     print('length', length)
 
-    node = get_best_node()
-    b = RpcClient(node)
+    # b = RpcClient()
 
     # print('RpcClient', b.url)
 
@@ -119,6 +118,9 @@ def save_block(b, start, length):
         logger.error('save_block index %s', index)
         logger.exception(e)
         time.sleep(1)
+
+        b = RpcClient()
+        b.url = get_random_node()
         save_block(b, start, length)
         # m.connection()['state'].insert_one({
         #     'index': index,

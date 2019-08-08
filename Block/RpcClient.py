@@ -6,17 +6,16 @@ import requests
 from logzero import logger
 import os
 import random
-from utils.tools import get_best_node
+from utils.tools import get_random_node,get_main_node
 
 
 class RpcClient(object):
-    def __init__(self,node_url):
-        self.url = get_best_node()
+    def __init__(self):
+        self.url = get_main_node()
         print('__init__')
 
     # 获取主链中区块的数量。
     def get_block_count(self):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "getblockcount",
@@ -24,6 +23,7 @@ class RpcClient(object):
             "id": 1
         })
         if r.json()['result'] is None:
+            self.url = get_random_node()
             self.get_block_count()       
 
         # if r.json()['error'] is not None:
@@ -32,7 +32,6 @@ class RpcClient(object):
         return r.json()['result']
 
     def get_block(self,index):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "getblock",
@@ -40,6 +39,7 @@ class RpcClient(object):
             "id": 1
         })
         if r.json()['result'] is None:
+            self.url = get_random_node()
             self.get_block(index)
 
         # if r.json()['error']:
@@ -49,7 +49,6 @@ class RpcClient(object):
 
     # 根据指定的 NEP-5 交易 ID 获取合约日志。
     def get_application_log(self,txid):
-        self.url = get_best_node()
         print('get_application_log',self.url)
         try:
             r = requests.post(self.url, json={
@@ -75,7 +74,6 @@ class RpcClient(object):
 
     # 根据指定的散列值，返回对应的交易信息
     def get_raw_transaction(self,txid):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "getrawtransaction",
@@ -84,6 +82,7 @@ class RpcClient(object):
         })
 
         if r.json()['result'] is None:
+            self.url = get_random_node()
             self.get_raw_transaction(txid)
 
         # if r.json()['error']:
@@ -93,7 +92,6 @@ class RpcClient(object):
 
     # 根据指定的资产编号，查询资产信息。
     def get_asset_state(self,asset_id):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "getassetstate",
@@ -101,6 +99,7 @@ class RpcClient(object):
             "id": 1
         })
         if r.json()['result'] is None:
+            self.url = get_random_node()
             self.get_asset_state(asset_id)
 
         # if r.json()['error']:
@@ -110,7 +109,6 @@ class RpcClient(object):
 
     # get decimals
     def get_nep5_decimals(self,asset_id):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "invokefunction",
@@ -122,13 +120,13 @@ class RpcClient(object):
             "id": 2
         })
         if r.json()['result'] is None:
+            self.url = get_random_node()
             self.get_nep5_decimals(asset_id)
 
         return r.json()['result']
 
     # get 根据账户地址，查询账户全局资产（如 NEO、GAS 等）资产信息。
     def get_account_state(self,address):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "getaccountstate",
@@ -141,7 +139,6 @@ class RpcClient(object):
         return r.json()['result']
 
     def invokefunction_decimals(self,asset_id):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "invokefunction",
@@ -153,12 +150,12 @@ class RpcClient(object):
             "id": 2
         })
         if r.json()['result'] is None:
+            self.url = get_random_node()
             self.invokefunction_decimals(asset_id)
 
         return r.json()['result']   
 
     def invokefunction_balanceOf(self,asset_id,address_hash160):
-        self.url = get_best_node()
         r = requests.post(self.url, json={
             "jsonrpc": "2.0",
             "method": "invokefunction",
@@ -178,6 +175,7 @@ class RpcClient(object):
             return 0
 
         if r.json()['result'] is None:
+            self.url = get_random_node()
             self.invokefunction_balanceOf(asset_id,address_hash160)
 
         return r.json()['result']  

@@ -46,8 +46,13 @@ def big_or_little(arr):
     return arr.decode('ascii')
 
 # 获取best node
-def get_best_node():
+def get_random_node():
+    print('get_random_node')
     return random.choice(os.environ.get('RPC_ARRAY').split(','))
+
+def get_main_node():
+    print('get_main_node')
+    return os.environ.get('MAIN_RPC')
 
 class Tool:
     @staticmethod

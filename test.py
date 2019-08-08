@@ -17,26 +17,23 @@ from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger
 from handle import save_block
-from utils.tools import get_best_node
+# from utils.tools import get_best_node
 import random
 
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
 load_dotenv(find_dotenv(), override=True)
 
-b = RpcClient(os.environ.get('RPC'))
-m = Mongo(os.environ.get('MONGODB'), os.environ.get('DB'))
-work_count = cpu_count()
 
 def verify_blocks(start):
     try:
 
         ## random node
-        node = get_best_node()
-        if node == '':
-            return
+        # node = get_best_node()
+        # if node == '':
+        #     return
 
 
-        b = RpcClient(node)
+        b = RpcClient()
         save_block(b, start, 0)
     except Exception as e:
         logger.exception(e)
@@ -45,7 +42,7 @@ def verify_blocks(start):
 if __name__ == "__main__":
     try:
         # print('start',os.environ.get('RPC_ARRAY').split(','))
-        print('start',random.choice(os.environ.get('RPC_ARRAY').split(',')))
-        # verify_blocks(3392009)
+        # print('start',random.choice(os.environ.get('RPC_ARRAY').split(',')))
+        verify_blocks(3392009)
     except Exception as e:
         logger.exception(e)

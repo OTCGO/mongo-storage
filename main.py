@@ -14,7 +14,7 @@ from dotenv import load_dotenv, find_dotenv
 import logzero
 from logzero import logger
 from handle import save_block,del_all,create_index
-from utils.tools import get_best_node
+from utils.tools import get_random_node
 
 logzero.logfile(os.getcwd() + "/log/main.log", maxBytes=1e10, backupCount=1)
 load_dotenv(find_dotenv(), override=True)
@@ -23,18 +23,20 @@ load_dotenv(find_dotenv(), override=True)
 
 work_count = cpu_count()
 
-def main():
+
+
+def main(b):
 
     try:
         start = time.time()
 
-        ## random node
-        node = get_best_node()
-        if node == '':
-            return
+        # ## random node
+        # node = get_best_node()
+        # if node == '':
+        #     return
 
 
-        b = RpcClient(node)
+        
         r = b.get_block_count()
         print('get_block_count',r)
         skip = 1000
@@ -61,7 +63,11 @@ def main():
         #print('err', e)
         logger.exception(e)
         time.sleep(5)
-        main()
+
+        b = RpcClient()
+        b.url = get_random_node()
+
+        main(b)
 
 
 
@@ -69,6 +75,7 @@ def main():
 if __name__ == "__main__":
     try:
         logger.info('main start')
-        main()
+        b = RpcClient()
+        main(b)
     except Exception as e:
         logger.exception(e)
